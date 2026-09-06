@@ -49,15 +49,15 @@ Constraints:
 - Todos los elementos del juego (arena, paleta, bola, bloques y objetivo) deben ser elementos del DOM (divs posicionados con absolute/transform). No usar <canvas>: el estado y la destrucción de bloques deben verse reflejados directamente en el árbol del DOM.
 ```
 
-**Qué intentaba lograr:** el artefacto entero de una sola vez, nombrando las cinco capas — estructura con etiquetas semánticas, estilo, comportamiento expresado como estado, y constraints de empaque.
+**Qué intentaba lograr:** El artefacto completo en una sola iteración, estructurando las cinco capas: semántica, estilo corporativo, comportamiento basado en estado y constraints de empaque (archivo único, Vanilla JS y manipulación del DOM sin canvas).
 
-**Qué devolvió:** el sistema para rechzar las coquies uncionando y la pagina  web de fondo similada
+**Qué devolvió:** El minijuego funcional de Arkanoid para rechazar cookies y la página de fondo simulada bloqueada por el overlay.
 
-**Qué hice con eso:** lo acepté. Pero el la pagina web de fondo simulada no tenia forma de volver a configurar las cokkies.
+**Qué hice con eso:** Lo acepté como base. Sin embargo, la página de fondo no ofrecía ninguna vía para reabrir el modal y volver a configurar las cookies una vez cerrado.
 
 ---
 
-## 2 — Agregar la posibilidad de volver a conigurar las cokkies
+## 2 — Agregar la posibilidad de volver a configurar las cookies
 
 ```
 Modificá el código anterior para permitir al usuario volver a abrir el gestor de cookies desde la página de fondo una vez cerrado el modal.
@@ -93,12 +93,14 @@ Constraints:
 - Vanilla JS, manipulación limpia del DOM para la regeneración de los bloques.
 ```
 
-**Qué intentaba lograr:** La capacidad de volver ah configurar las cokkies y un indicador claseo de cual fue la resolucion anterior.
+**Qué intentaba lograr:** Permitir reabrir la configuración de cookies desde la página de fondo tras cerrar el modal y sumar un indicador claro del estado de consentimiento previo (explícito, tácito o rechazado).
 
-**Qué devolvió:** Implemento en el boton y la identificacion de estado solicitados
+**Qué devolvió:** El enlace en el footer, el badge de estado en el modal según la resolución anterior y el reinicio íntegro del tablero en el DOM sin romper la lógica existente.
+
+**Qué hice con eso:** Lo di por finalizado; el artefacto quedó completo y funcional según lo planificado.
 
 ---
 
 ## Conversación completa
 
-Una sola conversación de Gemini Canvas, sin reiniciar el hilo. El artefacto final tiene 828 líneas en un archivo.
+Una sola conversación de Gemini Canvas, sin reiniciar el hilo. El artefacto final tiene 581 líneas en un archivo.
