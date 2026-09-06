@@ -1,829 +1,762 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Centro Médico San Lucas - Reserva de Turno</title>
+  <title>El futuro de la privacidad digital</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      border-radius: 0 !important; /* Cero redondeo estricto */
+    /* --- ESTILOS GLOBALES Y ARTÍCULO FALSO --- */
+    :root {
+      --font-main: 'Inter', 'Roboto', 'Arial', sans-serif;
+      --color-bg: #f9f9fb;
+      --color-text: #333;
+      --color-brand: #2563eb;
+      --color-green: #16a34a;
+      --color-green-hover: #15803d;
+      --arena-bg: #0f172a;
     }
 
     body {
-      background-color: #2b2b2b;
-      font-family: "Courier New", Courier, monospace;
-      color: #000000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 16px;
-    }
-
-    /* Contenedor principal estilo ventana/tarjeta de verificación clásica */
-    .app-container {
-      width: 100%;
-      max-width: 440px;
-      background-color: #d4d0c8;
-      border: 3px solid #000000;
-      box-shadow: 6px 6px 0px #000000;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    /* HEADER */
-    header {
-      border: 2px solid #808080;
-      background-color: #e4e0d8;
-      padding: 10px;
-      border-top-color: #ffffff;
-      border-left-color: #ffffff;
-    }
-
-    .header-title {
-      font-size: 14px;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px dashed #808080;
-      padding-bottom: 4px;
-    }
-
-    .header-subtitle {
-      font-size: 11px;
-      color: #444444;
-    }
-
-    .target-wrapper {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-top: 4px;
-    }
-
-    .target-instruction {
-      font-size: 11px;
-      color: #333333;
-      line-height: 1.2;
-    }
-
-    /* Estilo del CAPTCHA gráfico retro con fondo distorsionado */
-    .captcha-badge {
-      background-color: #fff8dc;
-      border: 2px solid #000000;
-      padding: 4px 12px;
-      font-size: 22px;
-      font-weight: 900;
-      letter-spacing: 6px;
-      color: #1a1a1a;
-      text-decoration: line-through;
-      user-select: none;
-      font-style: italic;
-      background-image: repeating-linear-gradient(
-        45deg,
-        rgba(0, 0, 0, 0.05),
-        rgba(0, 0, 0, 0.05) 2px,
-        transparent 2px,
-        transparent 6px
-      );
-    }
-
-    /* MAIN: CONTENIDO DINÁMICO SEGÚN PASO */
-    main {
-      border: 2px solid #000000;
-      background-color: #ffffff;
-      padding: 12px;
-    }
-
-    .step-section {
-      display: none;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .step-section.active {
-      display: flex;
-    }
-
-    /* Formularios y campos */
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .form-label {
-      font-size: 11px;
-      font-weight: bold;
-      color: #333333;
-      text-transform: uppercase;
-    }
-
-    .form-input {
-      font-family: "Courier New", Courier, monospace;
-      font-size: 13px;
-      padding: 6px 8px;
-      border: 2px inset #808080;
-      background-color: #f7f7f7;
-      color: #000000;
-      width: 100%;
-    }
-
-    .form-input:focus {
-      outline: none;
-      background-color: #ffffff;
-      border-color: #000080;
-    }
-
-    /* Tablero de Galton */
-    .board-container {
-      position: relative;
-      width: 100%;
-      height: 310px;
-      background-color: #f0f0f0;
-      border: 2px inset #808080;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-main);
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
       overflow: hidden;
+      /* Bloqueado hasta aceptar/jugar */
     }
 
-    /* Pegs (clavijas) */
-    .peg {
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      background-color: #707070;
-      border: 1px solid #303030;
-      border-radius: 50% !important;
-      transform: translate(-50%, -50%);
-      z-index: 2;
-      transition: transform 0.1s ease, background-color 0.1s ease;
-    }
-
-    .peg.hit {
-      background-color: #ff3b00;
-      transform: translate(-50%, -50%) scale(1.6);
-      box-shadow: 0 0 6px #ff3b00;
-    }
-
-    /* La bola */
-    .ball {
-      position: absolute;
-      width: 16px;
-      height: 16px;
-      background-color: #ff6600;
-      border: 2px solid #993300;
-      border-radius: 50% !important;
-      transform: translate(-50%, -50%);
-      z-index: 10;
-      display: none;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.35);
-      transition: top 220ms cubic-bezier(0.3, 0.7, 0.4, 1), left 220ms ease-in-out;
-    }
-
-    /* Canaletas receptoras */
-    .bins-container {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 85px;
-      display: flex;
-      border-top: 2px solid #000000;
-      z-index: 3;
-      background-color: #e4e0d8;
-    }
-
-    .canaleta {
-      flex: 1;
-      border-right: 2px solid #000000;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      align-items: center;
-      padding: 6px 2px;
-      background-color: #dcd7ce;
-      transition: background-color 0.15s ease;
-      cursor: pointer;
+    .article-container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+      filter: blur(4px);
+      /* Difuminado por el overlay */
       user-select: none;
     }
 
-    .canaleta:hover {
-      background-color: #ece8df;
+    .article-header h1 {
+      font-size: 2.5rem;
+      color: #111;
+      margin-bottom: 10px;
     }
 
-    .canaleta:last-child {
-      border-right: none;
+    .article-meta {
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 30px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 10px;
     }
 
-    .canaleta.selected {
-      background-color: #000080;
+    .article-content p {
+      margin-bottom: 20px;
+      font-size: 1.1rem;
+      color: #444;
     }
 
-    .canaleta.selected .canaleta-letter {
-      color: #ffffff;
-    }
-
-    .canaleta.selected .canaleta-prob {
-      color: #e0e0e0;
-      border-top-color: #ffffff;
-    }
-
-    .canaleta.highlight {
-      background-color: #ffcc99;
-    }
-
-    .canaleta-letter {
-      font-size: 16px;
-      font-weight: 900;
-      color: #000000;
-    }
-
-    .canaleta-prob {
-      font-size: 9px;
-      font-weight: bold;
-      color: #444444;
-      border-top: 1px solid #999999;
-      width: 100%;
+    /* --- NUEVO: FOOTER Y BOTÓN FLOTANTE --- */
+    .page-footer {
+      margin-top: 50px;
+      padding-top: 20px;
+      border-top: 1px solid #ddd;
       text-align: center;
-      padding-top: 2px;
+      font-size: 0.85rem;
+      color: #999;
     }
 
-    /* Sección de Turno Confirmado */
-    .confirmed-box {
-      background-color: #e8f5e9;
-      border: 2px solid #2e7d32;
-      padding: 12px;
+    .page-footer a {
+      color: #666;
+      text-decoration: underline;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .page-footer a:hover {
+      color: #333;
+    }
+
+    #floating-btn {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #4b5563;
+      cursor: pointer;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      z-index: 900;
+      /* Debajo del overlay (1000) */
+      transition: all 0.2s;
+    }
+
+    #floating-btn:hover {
+      background: #f3f4f6;
+      transform: translateY(-2px);
+    }
+
+    /* --- OVERLAY Y MODAL --- */
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    #cookie-modal {
+      background: white;
+      width: 540px;
+      border-radius: 12px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      gap: 10px;
     }
 
-    .confirmed-title {
-      font-size: 13px;
-      font-weight: bold;
-      color: #1b5e20;
-      text-align: center;
-      border-bottom: 1px dashed #a5d6a7;
-      padding-bottom: 6px;
+    /* --- HEADER DEL MODAL --- */
+    #cookie-modal header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #e5e7eb;
     }
 
-    .confirmed-details {
-      font-size: 12px;
-      color: #263238;
+    /* --- NUEVO: HEADER TOP Y BADGES --- */
+    .header-top {
       display: flex;
-      flex-direction: column;
-      gap: 6px;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    #cookie-modal header h2 {
+      margin: 0;
+      font-size: 1.4rem;
+      color: #111;
+    }
+
+    .consent-badge {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: white;
+      transition: background-color 0.3s;
+    }
+
+    .badge-pending {
+      background-color: #94a3b8;
+    }
+
+    .badge-accepted-explicit {
+      background-color: #16a34a;
+    }
+
+    .badge-accepted-tacit {
+      background-color: #ea580c;
+    }
+
+    .badge-rejected {
+      background-color: #3b82f6;
+    }
+
+    #cookie-modal header p {
+      margin: 0 0 15px 0;
+      font-size: 0.95rem;
+      color: #555;
       line-height: 1.4;
     }
 
-    /* FOOTER Y CONTROLES */
-    footer {
-      border-top: 2px solid #808080;
-      padding-top: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .footer-contact {
-      font-size: 10px;
-      color: #333333;
-      text-align: center;
-    }
-
-    /* Panel de letras ingresadas */
-    .inputs-display-box {
-      border: 2px inset #808080;
-      background-color: #ffffff;
-      padding: 8px 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .inputs-label {
-      font-size: 11px;
+    .btn-accept {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      background-color: var(--color-green);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
       font-weight: bold;
-      color: #333333;
+      cursor: pointer;
+      transition: background 0.2s;
     }
 
-    .slots-wrapper {
-      display: flex;
-      gap: 8px;
+    .btn-accept:hover {
+      background-color: var(--color-green-hover);
     }
 
-    .slot {
-      width: 28px;
-      height: 32px;
-      border: 2px solid #000000;
-      background-color: #f7f7f7;
+    /* --- ÁREA DE JUEGO (ARENA) --- */
+    #game-wrapper {
+      padding: 15px 30px;
+      background: #f1f5f9;
+    }
+
+    #game-arena {
+      position: relative;
+      width: 480px;
+      height: 360px;
+      background-color: var(--arena-bg);
+      border-radius: 8px;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      cursor: crosshair;
+    }
+
+    /* Elementos del juego (Todos con absolute y transform) */
+    #target-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 30px;
+      background-color: #334155;
+      color: #94a3b8;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
       font-weight: bold;
-      color: #000000;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      border-bottom: 2px dashed #64748b;
+      box-sizing: border-box;
+      transition: all 0.3s ease;
     }
 
-    .slot.filled {
-      background-color: #e0e0e0;
+    #target-bar.vulnerable {
+      background-color: #eab308;
+      color: #000;
+      border-bottom: 2px solid #ca8a04;
+      animation: pulse 1s infinite;
     }
 
-    /* Botones retro */
-    .buttons-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(234, 179, 8, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(234, 179, 8, 0);
+      }
     }
 
-    button {
-      font-family: "Courier New", Courier, monospace;
-      font-size: 13px;
+    .cookie-block {
+      position: absolute;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.7rem;
       font-weight: bold;
-      padding: 8px 10px;
-      background-color: #d4d0c8;
-      color: #000000;
-      border: 2px solid #ffffff;
-      border-right-color: #404040;
-      border-bottom-color: #404040;
-      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
       user-select: none;
-      text-align: center;
+      box-sizing: border-box;
+      border: 1px solid #60a5fa;
     }
 
-    button:hover:not(:disabled) {
-      background-color: #e0dcd4;
+    #paddle {
+      position: absolute;
+      width: 80px;
+      height: 12px;
+      background-color: #94a3b8;
+      border-radius: 6px;
+      bottom: 20px;
+      /* Constante en JS */
+      left: 0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     }
 
-    button:active:not(:disabled) {
-      border: 2px solid #404040;
-      border-right-color: #ffffff;
-      border-bottom-color: #ffffff;
-      padding-top: 9px;
-      padding-left: 11px;
-      padding-bottom: 7px;
-      padding-right: 9px;
+    #ball {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background-color: #fff;
+      border-radius: 50%;
+      top: 0;
+      left: 0;
+      box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
     }
 
-    button:disabled {
-      color: #888888;
-      background-color: #cccccc;
-      border-color: #e0e0e0;
-      border-right-color: #999999;
-      border-bottom-color: #999999;
-      cursor: not-allowed;
+    /* --- FOOTER DEL MODAL --- */
+    #cookie-modal footer {
+      padding: 15px 24px;
+      background: #f8fafc;
+      border-top: 1px solid #e5e7eb;
     }
 
-    .btn-full {
-      width: 100%;
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: #475569;
+      margin-bottom: 8px;
     }
 
-    .btn-primary {
-      background-color: #000080;
-      color: #ffffff;
-      border-color: #5555ff;
-      border-right-color: #000033;
-      border-bottom-color: #000033;
+    .stats strong {
+      color: #0f172a;
     }
 
-    .btn-primary:hover:not(:disabled) {
-      background-color: #0000aa;
-    }
-
-    /* Mensajes de resultado */
-    .result-banner {
-      display: none;
-      padding: 8px;
-      text-align: center;
-      font-size: 11px;
+    .status-message {
+      font-size: 0.9rem;
       font-weight: bold;
-      border: 2px solid #000000;
-      background-color: #ffcdd2;
-      color: #b71c1c;
-      margin-top: 4px;
+      text-align: center;
+      min-height: 20px;
+      color: #dc2626;
+      /* Rojo para alertas */
+    }
+
+    .status-message.success {
+      color: #16a34a;
+      /* Verde para éxito */
     }
   </style>
 </head>
+
 <body>
 
-  <div class="app-container">
-    
-    <!-- HEADER: TÍTULO Y CAPTCHA OBJETIVO -->
-    <header>
-      <div class="header-title">
-        <span>CENTRO MÉDICO SAN LUCAS</span>
-        <span class="header-subtitle">Turnos Web</span>
-      </div>
+  <!-- ARTÍCULO DE FONDO -->
+  <div class="article-container" id="article">
+    <div class="article-header">
+      <h1>El futuro de la privacidad digital</h1>
+      <div class="article-meta">Por Carlos Redondo | 15 de Octubre, 2026</div>
+    </div>
+    <div class="article-content">
+      <p>En la era contemporánea de la información, los datos personales se han convertido en el activo más valioso de
+        la economía digital. Desde los hábitos de navegación hasta los patrones de compra, cada interacción deja una
+        huella inborrable en los servidores globales.</p>
+      <p>A pesar de las regulaciones recientes diseñadas para otorgar control a los usuarios, la interfaz de usuario
+        hostil (dark patterns) sigue siendo una práctica habitual. Las corporaciones diseñan laberintos cognitivos con
+        el único propósito de fatigar al consumidor hasta que, por simple agotamiento, cede sus derechos de privacidad.
+      </p>
+      <p>El desafío que enfrentamos no es meramente tecnológico, sino ético. ¿Hasta qué punto estamos dispuestos a
+        transar nuestra intimidad por conveniencia? La respuesta definirá la infraestructura social de la próxima
+        década.</p>
+    </div>
 
-      <!-- Header informativo para el paso de Formulario y Confirmado -->
-      <div id="form-header-info" style="font-size: 11px; color: #333333;">
-        Complete el formulario para solicitar su cita médica.
-      </div>
-
-      <!-- Header específico para el paso de Captcha -->
-      <div id="captcha-header-info" style="display: none;" class="target-wrapper">
-        <div class="target-instruction">
-          Verificación obligatoria:<br>Ingrese el código:
-        </div>
-        <div id="captcha-target" class="captcha-badge" title="Objetivo a replicar">
-          ---
-        </div>
-      </div>
-    </header>
-
-    <!-- MAIN: CONTENEDOR SEGÚN PASO -->
-    <main>
-      <!-- PASO 1: FORMULARIO -->
-      <section id="step-formulario" class="step-section active">
-        <form id="booking-form" style="display: flex; flex-direction: column; gap: 10px;">
-          <div class="form-group">
-            <label class="form-label" for="input-nombre">Nombre y Apellido:</label>
-            <input type="text" id="input-nombre" class="form-input" required placeholder="Ej. Juan Pérez">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="input-email">Correo Electrónico:</label>
-            <input type="email" id="input-email" class="form-input" required placeholder="ejemplo@correo.com">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="input-fecha">Fecha del Turno:</label>
-            <input type="date" id="input-fecha" class="form-input" required>
-          </div>
-          <button type="submit" class="btn-full btn-primary" style="margin-top: 6px;">Reservar turno</button>
-        </form>
-      </section>
-
-      <!-- PASO 2: CAPTCHA (MÁQUINA DE GALTON) -->
-      <section id="step-captcha" class="step-section">
-        <div id="board" class="board-container">
-          <!-- Clavijas y canaletas generadas vía JS -->
-          <div id="ball" class="ball"></div>
-          <div id="bins" class="bins-container"></div>
-        </div>
-        <!-- Banner de Error en Captcha -->
-        <div id="result-box" class="result-banner">
-          ✗ FALLÓ VERIFICACIÓN: CÓDIGO INCORRECTO. REINTENTANDO...
-        </div>
-      </section>
-
-      <!-- PASO 3: CONFIRMADO -->
-      <section id="step-confirmado" class="step-section">
-        <div class="confirmed-box">
-          <div class="confirmed-title">✓ TURNO CONFIRMADO CON ÉXITO</div>
-          <div class="confirmed-details">
-            <div><strong>Paciente:</strong> <span id="conf-nombre">---</span></div>
-            <div><strong>Email:</strong> <span id="conf-email">---</span></div>
-            <div><strong>Fecha:</strong> <span id="conf-fecha">---</span></div>
-            <div><strong>Estado:</strong> Aprobado por verificación humana</div>
-          </div>
-        </div>
-        <button id="btn-nuevo-turno" class="btn-full btn-primary" style="margin-top: 8px;">Solicitar otro turno</button>
-      </section>
-    </main>
-
-    <!-- FOOTER: CONTROLES DEL CAPTCHA Y LÍNEA DE CONTACTO -->
-    <footer>
-      <!-- Controles de Galton visibles únicamente en paso captcha -->
-      <div id="captcha-controls" style="display: none; flex-direction: column; gap: 8px;">
-        <div class="inputs-display-box">
-          <span class="inputs-label">INGRESADOS:</span>
-          <div class="slots-wrapper">
-            <div id="slot-0" class="slot">-</div>
-            <div id="slot-1" class="slot">-</div>
-            <div id="slot-2" class="slot">-</div>
-          </div>
-        </div>
-        <div class="buttons-row">
-          <button id="btn-drop" type="button">Soltar bola</button>
-          <button id="btn-delete" type="button">Borrar último</button>
-        </div>
-      </div>
-
-      <div class="footer-contact">
-        Consultas y urgencias: 0800-555-SANLUCAS | Sede Central
-      </div>
+    <footer class="page-footer">
+      <p>&copy; 2026 Redondo Media Group. Todos los derechos reservados.</p>
+      <p><a id="open-settings-link">Configuración de cookies</a></p>
     </footer>
+  </div>
 
+  <button id="floating-btn">🍪 Privacidad</button>
+
+  <!-- MODAL DE COOKIES -->
+  <div id="overlay">
+    <div id="cookie-modal">
+      <header>
+        <div class="header-top">
+          <h2>Valoramos tu privacidad</h2>
+          <span id="consent-status-badge" class="consent-badge badge-pending">Estado: Pendiente</span>
+        </div>
+        <p>Nos tomamos muy en serio tus datos. Si deseás personalizar tu experiencia, podés desmantelar
+          <strong>manualmente</strong> cada módulo de seguimiento en el panel de control inferior. Alternativamente,
+          podés ahorrar tiempo.
+        </p>
+        <button class="btn-accept" id="btn-accept">Aceptar todas las cookies (Recomendado)</button>
+      </header>
+
+      <main id="game-wrapper">
+        <div id="game-arena">
+          <div id="target-bar">RECHAZAR TODO (Bloqueado)</div>
+          <!-- Bloques, paleta y bola inyectados/gestionados por JS -->
+          <div id="blocks-container"></div>
+          <div id="paddle"></div>
+          <div id="ball"></div>
+        </div>
+      </main>
+
+      <footer>
+        <div class="stats">
+          <span>Cookies restantes: <strong id="cookies-count">15</strong></span>
+          <span><em>Mueve el mouse, clic para lanzar</em></span>
+        </div>
+        <div class="status-message" id="status-msg"></div>
+      </footer>
+    </div>
   </div>
 
   <script>
-    const BASE_LETTERS = ['A', 'B', 'C', 'D', 'E'];
-    const PROBABILITIES = ['1/16', '4/16', '6/16', '4/16', '1/16'];
-    const STEP_DURATION_MS = 220;
+    // --- CONSTANTES DEL JUEGO ---
+    const ARENA_W = 480;
+    const ARENA_H = 360;
+    const PADDLE_W = 80;
+    const PADDLE_H = 12;
+    const PADDLE_Y = ARENA_H - 20; // 20px desde abajo
+    const BALL_SIZE = 14;
+    const TARGET_H = 30;
 
-    // Estado general de pasos: "formulario" | "captcha" | "confirmado"
-    let paso = "formulario";
-    let datosUsuario = { nombre: '', email: '', fecha: '' };
+    // Grid de bloques
+    const ROWS = 3;
+    const COLS = 5;
+    const BLOCK_W = 76;
+    const BLOCK_H = 26;
+    const PADDING_X = 20;
+    const GAP_X = 15;
+    const START_Y = TARGET_H + 20;
+    const GAP_Y = 12;
 
-    // Estado interno del Captcha de Galton
-    let letras = ['A', 'B', 'C', 'D', 'E'];
-    let seleccionada = null;
-    let objetivo = [];
-    let ingresados = [];
-    let cayendo = false;
+    const BLOCK_TEXTS = ["Rastreo", "Terceros", "Telemetría", "Ubicación", "Perfilado"];
 
-    // Elementos del DOM
-    const stepFormEl = document.getElementById('step-formulario');
-    const stepCaptchaEl = document.getElementById('step-captcha');
-    const stepConfirmadoEl = document.getElementById('step-confirmado');
-    const bookingFormEl = document.getElementById('booking-form');
+    // --- ESTADO GLOBAL Y DEL JUEGO ---
+    let currentConsentStatus = 'pending'; // 'pending', 'accepted-explicit', 'accepted-tacit', 'rejected'
+    let isPlaying = true;
+    let ballLaunched = false;
+    let cookiesLeft = ROWS * COLS;
 
-    const headerInfoForm = document.getElementById('form-header-info');
-    const headerInfoCaptcha = document.getElementById('captcha-header-info');
-    const targetBadgeEl = document.getElementById('captcha-target');
-    const captchaControlsEl = document.getElementById('captcha-controls');
+    let paddleX = (ARENA_W - PADDLE_W) / 2;
 
-    const boardEl = document.getElementById('board');
+    let ballX = 0;
+    let ballY = 0;
+    let ballVx = 0;
+    let ballVy = 0;
+    let speedMultiplier = 4.5;
+
+    let blocks = []; // { el: DOMElement, x, y, w, h, active }
+
+    // --- ELEMENTOS DEL DOM ---
+    const arenaEl = document.getElementById('game-arena');
+    const paddleEl = document.getElementById('paddle');
     const ballEl = document.getElementById('ball');
-    const binsEl = document.getElementById('bins');
-    const resultBoxEl = document.getElementById('result-box');
+    const blocksContainer = document.getElementById('blocks-container');
+    const targetBar = document.getElementById('target-bar');
+    const cookiesCountEl = document.getElementById('cookies-count');
+    const statusMsg = document.getElementById('status-msg');
+    const overlay = document.getElementById('overlay');
+    const article = document.getElementById('article');
+    const btnAccept = document.getElementById('btn-accept');
 
-    const btnDropEl = document.getElementById('btn-drop');
-    const btnDeleteEl = document.getElementById('btn-delete');
-    const btnNuevoTurnoEl = document.getElementById('btn-nuevo-turno');
+    const floatingBtn = document.getElementById('floating-btn');
+    const openSettingsLink = document.getElementById('open-settings-link');
+    const consentBadge = document.getElementById('consent-status-badge');
 
-    const slots = [
-      document.getElementById('slot-0'),
-      document.getElementById('slot-1'),
-      document.getElementById('slot-2')
-    ];
+    // --- INICIALIZACIÓN Y REINICIO ---
+    function initGame() {
+      // Event Listeners principales del juego (asignados solo una vez)
+      arenaEl.addEventListener('mousemove', onMouseMove);
+      arenaEl.addEventListener('click', onArenaClick);
+      btnAccept.addEventListener('click', acceptAllCookies);
 
-    const confNombreEl = document.getElementById('conf-nombre');
-    const confEmailEl = document.getElementById('conf-email');
-    const confFechaEl = document.getElementById('conf-fecha');
+      // Listeners para reabrir el gestor
+      floatingBtn.addEventListener('click', resetAndOpenModal);
+      openSettingsLink.addEventListener('click', resetAndOpenModal);
 
-    const pegElements = [];
-
-    function cambiarPaso(nuevoPaso) {
-      paso = nuevoPaso;
-
-      stepFormEl.classList.remove('active');
-      stepCaptchaEl.classList.remove('active');
-      stepConfirmadoEl.classList.remove('active');
-
-      headerInfoForm.style.display = 'none';
-      headerInfoCaptcha.style.display = 'none';
-      captchaControlsEl.style.display = 'none';
-
-      if (paso === "formulario") {
-        stepFormEl.classList.add('active');
-        headerInfoForm.style.display = 'block';
-      } else if (paso === "captcha") {
-        stepCaptchaEl.classList.add('active');
-        headerInfoCaptcha.style.display = 'flex';
-        captchaControlsEl.style.display = 'flex';
-        initCaptchaRound();
-      } else if (paso === "confirmado") {
-        stepConfirmadoEl.classList.add('active');
-        headerInfoForm.style.display = 'block';
-        confNombreEl.textContent = datosUsuario.nombre;
-        confEmailEl.textContent = datosUsuario.email;
-        confFechaEl.textContent = datosUsuario.fecha;
-      }
+      // Preparar el estado y DOM la primera vez
+      resetGameState();
     }
 
-    function buildBoard() {
-      const boardWidth = boardEl.clientWidth || 372;
-      const startY = 32;
-      const rowGapY = 40;
-      const pegSpacingX = 48;
-      const centerX = boardWidth / 2;
+    function resetGameState() {
+      // Reiniciar variables
+      isPlaying = true;
+      ballLaunched = false;
+      cookiesLeft = ROWS * COLS;
+      speedMultiplier = 4.5;
 
-      for (let r = 0; r < 4; r++) {
-        pegElements[r] = [];
-        const numPegsInRow = r + 1;
-        const rowStartX = centerX - ((numPegsInRow - 1) * pegSpacingX) / 2;
-        const posY = startY + r * rowGapY;
+      // Limpiar bloques antiguos del DOM
+      blocksContainer.innerHTML = '';
+      blocks = [];
 
-        for (let c = 0; c < numPegsInRow; c++) {
-          const posX = rowStartX + c * pegSpacingX;
-          const peg = document.createElement('div');
-          peg.className = 'peg';
-          peg.style.left = `${posX}px`;
-          peg.style.top = `${posY}px`;
-          boardEl.appendChild(peg);
-          pegElements[r].push({ el: peg, x: posX, y: posY });
+      // Generar bloques desde cero
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          let bx = PADDING_X + c * (BLOCK_W + GAP_X);
+          let by = START_Y + r * (BLOCK_H + GAP_Y);
+
+          let el = document.createElement('div');
+          el.className = 'cookie-block';
+          el.style.width = BLOCK_W + 'px';
+          el.style.height = BLOCK_H + 'px';
+          el.style.left = bx + 'px';
+          el.style.top = by + 'px';
+          el.innerText = BLOCK_TEXTS[c];
+
+          blocksContainer.appendChild(el);
+
+          blocks.push({
+            el: el,
+            x: bx,
+            y: by,
+            w: BLOCK_W,
+            h: BLOCK_H,
+            active: true
+          });
         }
       }
 
-      binsEl.innerHTML = '';
-      for (let i = 0; i < 5; i++) {
-        const bin = document.createElement('div');
-        bin.className = 'canaleta';
-        bin.id = `bin-${i}`;
-        bin.innerHTML = `
-          <span class="canaleta-letter">${letras[i]}</span>
-          <span class="canaleta-prob">${PROBABILITIES[i]}</span>
-        `;
-        bin.addEventListener('click', () => onBinClick(i));
-        binsEl.appendChild(bin);
+      // Restaurar visuales del modal
+      targetBar.innerText = "RECHAZAR TODO (Bloqueado)";
+      targetBar.classList.remove('vulnerable');
+      statusMsg.innerText = "";
+      statusMsg.classList.remove('success');
+      cookiesCountEl.innerText = cookiesLeft;
+
+      updateBadgeStatus();
+
+      // Posicionar entidades
+      paddleX = (ARENA_W - PADDLE_W) / 2;
+      updatePaddleDOM();
+      resetBall();
+      updateBallDOM();
+    }
+
+    function resetAndOpenModal(e) {
+      if (e) e.preventDefault();
+      resetGameState();
+
+      // Mostrar modal y bloquear fondo
+      overlay.style.display = 'flex';
+      setTimeout(() => { overlay.style.opacity = '1'; }, 10);
+
+      article.style.transition = 'filter 0.5s ease';
+      article.style.filter = 'blur(4px)';
+      article.style.userSelect = 'none';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function updateBadgeStatus() {
+      consentBadge.className = 'consent-badge'; // reset clases
+      switch (currentConsentStatus) {
+        case 'pending':
+          consentBadge.classList.add('badge-pending');
+          consentBadge.innerText = 'Estado: Pendiente';
+          break;
+        case 'accepted-explicit':
+          consentBadge.classList.add('badge-accepted-explicit');
+          consentBadge.innerText = 'Aceptadas (Explícito)';
+          break;
+        case 'accepted-tacit':
+          consentBadge.classList.add('badge-accepted-tacit');
+          consentBadge.innerText = 'Aceptadas (Tácito)';
+          break;
+        case 'rejected':
+          consentBadge.classList.add('badge-rejected');
+          consentBadge.innerText = 'Rechazadas';
+          break;
       }
     }
 
-    function onBinClick(index) {
-      if (cayendo) return;
+    // --- CONTROLES ---
+    function onMouseMove(e) {
+      if (!isPlaying) return;
 
-      if (seleccionada === null) {
-        seleccionada = index;
-      } else if (seleccionada === index) {
-        seleccionada = null;
-      } else {
-        const temp = letras[seleccionada];
-        letras[seleccionada] = letras[index];
-        letras[index] = temp;
-        seleccionada = null;
+      const rect = arenaEl.getBoundingClientRect();
+      // Posición del mouse relativa a la arena
+      let mouseX = e.clientX - rect.left;
+
+      // Centrar paleta en el mouse y restringir límites
+      paddleX = mouseX - (PADDLE_W / 2);
+      if (paddleX < 0) paddleX = 0;
+      if (paddleX > ARENA_W - PADDLE_W) paddleX = ARENA_W - PADDLE_W;
+
+      updatePaddleDOM();
+
+      // Si no fue lanzada, la bola sigue a la paleta
+      if (!ballLaunched) {
+        resetBall();
+        updateBallDOM();
       }
-
-      updateBinsUI();
     }
 
-    function updateBinsUI() {
-      for (let i = 0; i < 5; i++) {
-        const binEl = document.getElementById(`bin-${i}`);
-        if (!binEl) continue;
+    function onArenaClick() {
+      if (!isPlaying) return;
+      if (!ballLaunched) {
+        ballLaunched = true;
+        // Velocidad inicial hacia arriba y ligeramente de lado
+        ballVy = -speedMultiplier;
+        ballVx = (Math.random() > 0.5 ? 1 : -1) * (speedMultiplier * 0.5);
+        requestAnimationFrame(gameLoop);
+      }
+    }
 
-        const letterEl = binEl.querySelector('.canaleta-letter');
-        if (letterEl) {
-          letterEl.textContent = letras[i];
-        }
+    // --- BUCLE PRINCIPAL (FÍSICAS) ---
+    function gameLoop() {
+      if (!isPlaying) return;
 
-        if (seleccionada === i) {
-          binEl.classList.add('selected');
+      // Mover bola
+      ballX += ballVx;
+      ballY += ballVy;
+
+      // --- COLISIONES CON PAREDES ---
+      if (ballX <= 0) {
+        ballX = 0;
+        ballVx = -ballVx;
+      } else if (ballX >= ARENA_W - BALL_SIZE) {
+        ballX = ARENA_W - BALL_SIZE;
+        ballVx = -ballVx;
+      }
+
+      // --- COLISIÓN CON EL TECHO (OBJETIVO) ---
+      if (ballY <= TARGET_H) {
+        if (cookiesLeft === 0) {
+          // ¡VICTORIA!
+          triggerVictory();
+          return; // Frenar bucle
         } else {
-          binEl.classList.remove('selected');
-        }
-      }
-    }
-
-    function getRandomLetter() {
-      return BASE_LETTERS[Math.floor(Math.random() * BASE_LETTERS.length)];
-    }
-
-    function initCaptchaRound() {
-      letras = ['A', 'B', 'C', 'D', 'E'];
-      seleccionada = null;
-      objetivo = [getRandomLetter(), getRandomLetter(), getRandomLetter()];
-      ingresados = [];
-      cayendo = false;
-
-      targetBadgeEl.textContent = objetivo.join(' ');
-      resultBoxEl.style.display = 'none';
-      ballEl.style.display = 'none';
-
-      updateBinsUI();
-      updateCaptchaUI();
-    }
-
-    function updateCaptchaUI() {
-      for (let i = 0; i < 3; i++) {
-        if (i < ingresados.length) {
-          slots[i].textContent = ingresados[i];
-          slots[i].classList.add('filled');
-        } else {
-          slots[i].textContent = '-';
-          slots[i].classList.remove('filled');
+          // Rebota porque aún hay cookies
+          ballY = TARGET_H;
+          ballVy = Math.abs(ballVy); // Forzar hacia abajo
         }
       }
 
-      const isCompleted = ingresados.length >= 3;
+      // --- COLISIÓN CON LA PALETA ---
+      if (ballVy > 0 &&
+        ballY + BALL_SIZE >= PADDLE_Y &&
+        ballY + BALL_SIZE <= PADDLE_Y + PADDLE_H &&
+        ballX + BALL_SIZE > paddleX &&
+        ballX < paddleX + PADDLE_W) {
 
-      btnDropEl.disabled = cayendo || isCompleted;
-      btnDeleteEl.disabled = cayendo || ingresados.length === 0;
+        // Efecto de control de dirección basado en dónde golpea la paleta
+        let hitPoint = (ballX + BALL_SIZE / 2) - (paddleX + PADDLE_W / 2);
+        let normalizedHit = hitPoint / (PADDLE_W / 2); // de -1 (izq) a 1 (der)
 
-      if (isCompleted && !cayendo) {
-        verifyResult();
-      }
-    }
-
-    function verifyResult() {
-      const targetStr = objetivo.join('');
-      const inputStr = ingresados.join('');
-
-      if (targetStr === inputStr) {
-        cambiarPaso("confirmado");
-      } else {
-        resultBoxEl.style.display = 'block';
-        setTimeout(() => {
-          initCaptchaRound();
-        }, 1600);
-      }
-    }
-
-    function sleep(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    async function dropBall() {
-      if (cayendo || ingresados.length >= 3) return;
-
-      cayendo = true;
-      updateCaptchaUI();
-
-      const boardWidth = boardEl.clientWidth || 372;
-      const centerX = boardWidth / 2;
-
-      ballEl.style.transition = 'none';
-      ballEl.style.left = `${centerX}px`;
-      ballEl.style.top = `10px`;
-      ballEl.style.display = 'block';
-
-      await sleep(20);
-      ballEl.style.transition = `top ${STEP_DURATION_MS}ms cubic-bezier(0.25, 1, 0.5, 1), left ${STEP_DURATION_MS}ms ease-in-out`;
-
-      let currentCol = 0;
-      const initialPeg = pegElements[0][0];
-      ballEl.style.left = `${initialPeg.x}px`;
-      ballEl.style.top = `${initialPeg.y}px`;
-      await sleep(STEP_DURATION_MS);
-      flashPeg(initialPeg.el);
-
-      for (let r = 1; r < 4; r++) {
-        const goRight = Math.random() < 0.5 ? 1 : 0;
-        currentCol += goRight;
-
-        const nextPeg = pegElements[r][currentCol];
-        ballEl.style.left = `${nextPeg.x}px`;
-        ballEl.style.top = `${nextPeg.y}px`;
-
-        await sleep(STEP_DURATION_MS);
-        flashPeg(nextPeg.el);
+        ballVx = normalizedHit * (speedMultiplier * 1.2);
+        ballVy = -Math.abs(ballVy); // Forzar hacia arriba
+        ballY = PADDLE_Y - BALL_SIZE; // Evitar que se pegue
       }
 
-      const finalBounceRight = Math.random() < 0.5 ? 1 : 0;
-      const finalBinIndex = currentCol + finalBounceRight;
+      // --- COLISIONES CON BLOQUES ---
+      // Creamos rectángulos lógicos para AABB
+      const ballRect = {
+        left: ballX, right: ballX + BALL_SIZE,
+        top: ballY, bottom: ballY + BALL_SIZE,
+        cx: ballX + BALL_SIZE / 2, cy: ballY + BALL_SIZE / 2
+      };
 
-      const binWidth = boardWidth / 5;
-      const binTargetX = (finalBinIndex * binWidth) + (binWidth / 2);
-      const binTargetY = 250;
+      for (let i = 0; i < blocks.length; i++) {
+        let b = blocks[i];
+        if (!b.active) continue;
 
-      ballEl.style.left = `${binTargetX}px`;
-      ballEl.style.top = `${binTargetY}px`;
+        const blockRect = {
+          left: b.x, right: b.x + b.w,
+          top: b.y, bottom: b.y + b.h,
+          cx: b.x + b.w / 2, cy: b.y + b.h / 2
+        };
 
-      await sleep(STEP_DURATION_MS);
+        // Comprobar intersección AABB
+        if (ballRect.left < blockRect.right &&
+          ballRect.right > blockRect.left &&
+          ballRect.top < blockRect.bottom &&
+          ballRect.bottom > blockRect.top) {
 
-      const chosenBinEl = document.getElementById(`bin-${finalBinIndex}`);
-      if (chosenBinEl) {
-        chosenBinEl.classList.add('highlight');
-        setTimeout(() => chosenBinEl.classList.remove('highlight'), 300);
+          // Colisión detectada!
+          b.active = false;
+          b.el.style.display = 'none'; // Ocultar del DOM
+          cookiesLeft--;
+          cookiesCountEl.innerText = cookiesLeft;
+
+          // Resolución simple: determinar de qué lado vino el golpe
+          let overlapX = (BALL_SIZE / 2 + b.w / 2) - Math.abs(ballRect.cx - blockRect.cx);
+          let overlapY = (BALL_SIZE / 2 + b.h / 2) - Math.abs(ballRect.cy - blockRect.cy);
+
+          if (overlapX < overlapY) {
+            ballVx = -ballVx; // Rebote horizontal
+          } else {
+            ballVy = -ballVy; // Rebote vertical
+          }
+
+          // Acelerar un poquito la bola para aumentar dificultad
+          speedMultiplier += 0.05;
+
+          // Comprobar si desbloqueó el objetivo
+          if (cookiesLeft === 0) {
+            targetBar.innerText = "¡RECHAZAR TODO! (GOLPEA AQUÍ)";
+            targetBar.classList.add('vulnerable');
+          }
+
+          break; // Solo romper un bloque por frame
+        }
       }
 
-      const letterObtained = letras[finalBinIndex];
-      ingresados.push(letterObtained);
+      // --- COLISIÓN CON EL SUELO (DERROTA HOSTIL) ---
+      if (ballY > ARENA_H) {
+        triggerDefeat();
+        return; // Frenar bucle
+      }
 
-      await sleep(150);
-      ballEl.style.display = 'none';
-
-      cayendo = false;
-      updateCaptchaUI();
+      // Actualizar vista
+      updateBallDOM();
+      requestAnimationFrame(gameLoop);
     }
 
-    function flashPeg(pegDom) {
-      if (!pegDom) return;
-      pegDom.classList.add('hit');
-      setTimeout(() => pegDom.classList.remove('hit'), 180);
+    // --- ACTUALIZACIONES DOM ---
+    function updatePaddleDOM() {
+      paddleEl.style.transform = `translateX(${paddleX}px)`;
     }
 
-    bookingFormEl.addEventListener('submit', (e) => {
-      e.preventDefault();
-      datosUsuario.nombre = document.getElementById('input-nombre').value;
-      datosUsuario.email = document.getElementById('input-email').value;
-      datosUsuario.fecha = document.getElementById('input-fecha').value;
+    function updateBallDOM() {
+      ballEl.style.transform = `translate(${ballX}px, ${ballY}px)`;
+    }
 
-      cambiarPaso("captcha");
-    });
+    function resetBall() {
+      ballX = paddleX + (PADDLE_W / 2) - (BALL_SIZE / 2);
+      ballY = PADDLE_Y - BALL_SIZE - 2;
+    }
 
-    btnDropEl.addEventListener('click', dropBall);
+    // --- DESENLACES ---
+    function triggerDefeat() {
+      isPlaying = false;
+      currentConsentStatus = 'accepted-tacit';
+      updateBadgeStatus();
+      statusMsg.innerText = "¡Pelota perdida! Por inacción se asume tu consentimiento tácito (Art. 404). Todas las cookies aceptadas.";
 
-    btnDeleteEl.addEventListener('click', () => {
-      if (cayendo || ingresados.length === 0) return;
-      ingresados.pop();
-      resultBoxEl.style.display = 'none';
-      updateCaptchaUI();
-    });
+      setTimeout(() => {
+        closeModal();
+      }, 2500);
+    }
 
-    btnNuevoTurnoEl.addEventListener('click', () => {
-      bookingFormEl.reset();
-      cambiarPaso("formulario");
-    });
+    function triggerVictory() {
+      isPlaying = false;
+      currentConsentStatus = 'rejected';
+      updateBadgeStatus();
+      statusMsg.classList.add('success');
+      statusMsg.innerText = "¡Éxito! Has rechazado el rastreo exitosamente.";
 
-    window.addEventListener('load', () => {
-      buildBoard();
-    });
+      setTimeout(() => {
+        closeModal();
+      }, 1500);
+    }
 
-    window.addEventListener('resize', () => {
-      const existingPegs = document.querySelectorAll('.peg');
-      existingPegs.forEach(p => p.remove());
-      pegElements.length = 0;
-      buildBoard();
-    });
+    function acceptAllCookies() {
+      if (!isPlaying) return;
+      isPlaying = false;
+      currentConsentStatus = 'accepted-explicit';
+      updateBadgeStatus();
+      closeModal();
+    }
+
+    function closeModal() {
+      overlay.style.transition = 'opacity 0.5s ease';
+      overlay.style.opacity = '0';
+
+      // Remover el blur del artículo y permitir scroll
+      article.style.transition = 'filter 0.5s ease';
+      article.style.filter = 'blur(0px)';
+      article.style.userSelect = 'auto';
+      document.body.style.overflow = 'auto';
+
+      setTimeout(() => {
+        overlay.style.display = 'none';
+      }, 500);
+    }
+
+    // Iniciar
+    window.onload = initGame;
   </script>
 </body>
+
 </html>

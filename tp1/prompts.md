@@ -83,36 +83,6 @@ Las dos reglas del final previenen bugs concretos. Sin la primera, reordenar con
 
 ---
 
-## 3 — Envolver el captcha en una página anfitriona
-
-```
-Envolvé el captcha en una página que sea sobre otra cosa.
-
-La página es un formulario para reservar un turno: <header> con el nombre
-del lugar, <main> con un <form> de nombre, email y fecha y un <button>
-"Reservar turno", <footer> con una línea de contacto.
-
-Agregá un estado `paso` con tres valores: "formulario", "captcha" y
-"confirmado".
-- Arranca en "formulario": se ve el form, el captcha no.
-- Al enviar el form: `paso` pasa a "captcha", el form se oculta y aparece
-  el tablero de Galton.
-- Si la verificación pasa: `paso` pasa a "confirmado" y se ve el turno
-  reservado con los datos que cargó.
-- Si falla: se queda en "captcha" con un objetivo nuevo.
-
-El captcha no cambia por dentro: mismo tablero, mismos estados, misma
-lógica. Solo deja de ser la página y pasa a ser un paso.
-```
-
-**Qué intentaba lograr:** que el captcha apareciera donde aparece un captcha de verdad — cortando una tarea que el usuario quiere terminar. Una página que es solo el captcha no frustra a nadie, porque nadie llegó ahí queriendo otra cosa.
-
-**Por qué la última línea:** un pedido estructural como este es el caso donde el modelo tiende a reescribir lo que ya funcionaba, y ahí se pierde el trabajo de los dos prompts anteriores. Decirlo explícito lo evitó.
-
-**Qué devolvió:** los tres pasos funcionando, con el captcha intacto adentro del segundo. El formulario quedó como un centro médico pidiendo turno.
-
----
-
 ## Conversación completa
 
 Una sola conversación de Gemini Canvas, sin reiniciar el hilo. El artefacto final tiene 828 líneas en un archivo.
