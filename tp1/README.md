@@ -1,37 +1,42 @@
-# TP 1 — Captcha de máquina de Galton
+# TP 1 — Consentimiento de cookies por Arkanoid
 
-Un formulario de reserva de turno donde la verificación te hace ingresar tres letras soltando bolas en una máquina de Galton. Funciona bien y usarlo es horrible, que era la idea.
+Un banner corporativo de consentimiento de cookies donde la única manera de rechazar el rastreo publicitario es destruir quince módulos de seguimiento jugando una partida de Arkanoid (Breakout). Funciona a la perfección y es exasperante, que era exactamente el objetivo.
 
 ## Cómo se ejecuta
 
-Doble click en `index.html`. Un solo archivo, sin dependencias.
+Doble click en `index.html`. Un solo archivo, sin dependencias ni librerías externas.
 
 ## Qué me propuse construir
 
-Una bad UI hostil por matemática y no por capricho. No esconde nada —las probabilidades están escritas debajo de cada canaleta— y aun así duele, porque la binomial junta las bolas en el centro y las letras de los bordes salen una vez cada dieciséis. Salió en tres prompts, en una sola conversación de Gemini Canvas.
+Llevar al extremo el concepto de *dark pattern* y fatiga por consentimiento: una asimetría de fricción absurda. Para entregar todos tus datos personales basta con un solo click en un botón verde destacado ("Aceptar todas las cookies (Recomendado)"); pero para ejercer tu derecho a la privacidad tenés que demostrar destreza motriz demoliendo quince bloques de cookies ("Rastreo", "Telemetría", "Perfilado", etc.) y luego acertar en una barra superior para confirmar el rechazo.
+
+Para coronar la hostilidad, fallar la bola no reinicia la partida: activa una trampa legalista que asume tu "consentimiento tácito por inacción (Art. 404)" y acepta todas las cookies automáticamente.
+
+El artefacto completo se construyó en dos prompts, dentro de una única conversación de Gemini Canvas.
 
 ## Decisiones que tomé yo
 
-**DOM en vez de `<canvas>`.** La más importante. Pedido a secas, un tablero de Galton sale dibujado en canvas: anda igual, pero el estado deja de verse en el DOM. Acá los pegs, la bola y las canaletas son divs, y se puede abrir el inspector a mirar el estado y su reflejo al mismo tiempo.
+**DOM en lugar de `<canvas>`.** La decisión técnica central. Un Breakout convencional suele renderizarse en un `<canvas>`, pero eso oculta el estado detrás de un lienzo gráfico opaco. Al exigir que la arena, la paleta, la bola y cada bloque sean elementos reales del DOM (`<div>` posicionados con `absolute` y `transform`), el estado y la destrucción de cada cookie se reflejan directamente en el árbol del documento y pueden ser inspeccionados con las DevTools del navegador.
 
-**Cuatro filas, cinco canaletas.** Dan 16 caminos y una distribución de 1/16, 4/16, 6/16, 4/16, 1/16. Con seis filas el borde cae a 1/64: más cruel, pero demasiado lento para mostrarlo en clase.
+**Fricción asimétrica calculada.** Quería satirizar los patrones oscuros reales donde rechazar cookies requiere navegar laberintos de opciones. Acá la metáfora es literal: aceptar toma una fracción de segundo; rechazar exige tiempo, coordinación motriz y reflejos contra una bola cuya velocidad se acelera con cada impacto.
 
-**Borrar con un botón.** La versión más hostil era obligarte a embocar una canaleta de borrado. Convierte un error en una espiral de la que no se sale.
+**La trampa del consentimiento tácito.** Si la bola cae al vacío, no hay pantalla de "Game Over" ni reintento inmediato. La interfaz penaliza el error asumiendo que el usuario abandonó el proceso y cede sus datos por inacción, cerrando el modal tras un mensaje formal y desbloqueando el artículo.
 
-**Las letras de las canaletas se reordenan.** Sin esto mirás caer la bola sin poder intervenir. Poder mover al centro la que necesitás alcanza para que sea una interfaz y no una tragamonedas, y tampoco la vuelve fácil: el objetivo son tres letras y el centro es uno.
+**El banner bloquea contenido real.** El modal no flota en una pantalla vacía: interrumpe la lectura de un artículo de noticias sobre privacidad digital difuminado en el fondo (`filter: blur(4px)`). Esto reproduce la impaciencia y frustración habitual del usuario que solo quiere acceder al contenido.
 
-**El captcha no es la página.** Suelto no molesta a nadie, porque nadie llegó ahí queriendo otra cosa. Envuelto en una reserva de turno corta algo que querías terminar.
+**Ciclo de vida completo del consentimiento.** En lugar de ser una trampa de un solo uso, se incluyó la posibilidad de reabrir el gestor desde el pie de página o mediante un botón flotante, incorporando un badge visual en el modal que audita cómo fue otorgado el consentimiento previo (explícito, tácito o rechazado).
 
 ## Qué salió mal y cómo lo corregí
 
-El resultado salió bien y el prompt igual estaba mal.
+En el primer prompt especifiqué minuciosamente las cinco capas del artefacto (estructura semántica, estilo corporativo, estado, físicas de colisión AABB y constraints de empaque). El modelo interpretó adecuadamente la consigna y generó el juego funcional junto a la página de fondo en un solo paso.
 
-Tenía una contradicción —la estructura pedía cuatro filas de pegs y el comportamiento hablaba de "la sexta", que había quedado de una versión anterior— y una referencia huérfana: el estilo decía que la probabilidad va escrita, pero la estructura nunca pidió mostrarla. El modelo se quedó con cuatro filas y agregó las probabilidades, bien calculadas.
+Sin embargo, el flujo quedaba incompleto: una vez cerrado el modal (ya sea aceptando o por victoria/derrota en el juego), la página no ofrecía ninguna vía para volver a configurar la privacidad ni dejaba constancia de qué decisión se había tomado.
 
-Las dos ambigüedades salieron a mi favor, y ahí está el problema: juzgando por el resultado, me quedo con que el prompt estaba bien escrito. Faltó releerlo cruzando las secciones entre sí antes de mandarlo, que es la revisión que uno saltea cuando escribió el texto hace treinta segundos.
-
-Lo que sí anduvo por diseño fueron las tres reglas defensivas de los prompts 2 y 3: bloquear los clicks mientras la bola cae, dejar los porcentajes pegados a la posición y no a la letra, y pedir que el captcha no se tocara al envolverlo. Las tres son bugs silenciosos si no se nombran.
+Lo corregí en el segundo prompt solicitando:
+1. Un enlace en el footer del artículo y un botón flotante para reabrir el gestor en cualquier momento.
+2. Un badge visual en el encabezado del modal con colores condicionales según el estado previo.
+3. La regeneración limpia del DOM y reinicio de variables (`resetGameState`) para permitir volver a jugar desde cero sin recargar la página y sin romper los event listeners ni la física.
 
 ## Prompts
 
-El registro completo está en [prompts.md](prompts.md). Los que más pesaron son el primero, que fija el artefacto entero, y el del reordenamiento, que convirtió una animación que se mira en una interfaz que se opera.
+El registro completo está en [prompts.md](prompts.md). El primer prompt definió la arquitectura y la mecánica hostil de Arkanoid en el DOM, mientras que el segundo cerró la persistencia y la reconfiguración del estado.
