@@ -1,85 +1,101 @@
 # Prompts — TP 1
 
-El registro del proceso, en orden. Tres prompts en una sola conversación de Gemini Canvas. El artefacto quedó terminado en el tercero.
+El registro del proceso, en orden. Dos prompts en una sola conversación de Gemini Canvas. El artefacto quedó terminado en el segundo.
 
 ---
 
 ## 1 — Prompt inicial
 
 ```
-Construí un captcha de verificación que funciona con una máquina de Galton.
+Construí un banner de consentimiento de cookies donde la única forma de rechazar el rastreo es destruir un muro de cookies jugando una partida de Arkanoid (Breakout).
 
 Estructura:
-- <header> con el título "Verificación de seguridad" y el captcha objetivo:
-  3 letras que el usuario tiene que ingresar, generadas al azar al cargar.
-- <main> con el tablero: un triángulo de pegs de 4 filas (1, 2, 3 y 4 pegs por fila) y, debajo, una fila de 5 canaletas. Cada canaleta muestra
-  una letra (A a E, de izquierda a derecha).
-- <footer> con lo ingresado hasta ahora, un <button> "Soltar bola" y un
-  <button> "Borrar último".
+- Una página web de fondo simulada: un artículo de blog o noticias con titular ("El futuro de la privacidad digital"), fecha, autor y un par de párrafos de texto con tipografía de lectura, bloqueado por un overlay oscuro.
+- Un modal centrado (<div id="cookie-modal">) con:
+  - <header>: título "Valoramos tu privacidad", un texto formal que explique que para rechazar las cookies se debe desmantelar manualmente cada módulo de seguimiento, y un botón bien visible: "Aceptar todas las cookies (Recomendado)".
+  - <main>: el área de juego (la arena de Arkanoid, tamaño fijo rectangular, ej. 480x360px) que contiene:
+    - En el extremo superior: una barra objetivo que dice "RECHAZAR TODO".
+    - Debajo del objetivo: 3 filas de 5 bloques de cookies cada una (15 bloques en total). Cada bloque muestra un texto corto: "Rastreo", "Terceros", "Telemetría", "Ubicación", "Perfilado".
+    - Una paleta rectangular controlable horizontalmente.
+    - Una bola circular.
+  - <footer>: contador de "Cookies activas restantes", instrucciones breves ("Mové el mouse para la paleta. Click para lanzar.") y un área de mensajes de estado.
 
 Estilo:
-- Estética de captcha viejo: fondo gris claro, bordes duros, tipografía
-  monoespaciada, cero redondeo.
-- Pegs como círculos chicos grises. La bola, un círculo naranja.
-- Las canaletas del centro y las de los bordes se ven iguales: la
-  probabilidad está escrita, no señalizada con color.
+- Estética de banner corporativo formal y limpio: tonos grises y blancos, tipografía sans-serif de sistema (Inter, Roboto o Arial).
+- El botón de "Aceptar todas" debe ser verde, grande, moderno y con cursor pointer.
+- Los bloques de cookies: rectángulos con bordes suaves, fondo azul/pizarra y tipografía pequeña blanca.
+- La barra objetivo "RECHAZAR TODO": fondo gris apagado con candado/borde discontinuo mientras haya cookies; cuando se destruyen todas, cambia a color amarillo/dorado destellante.
+- La paleta: barra oscura con extremos redondeados. La bola: círculo blanco o amarillo con leve sombra.
+- El área de juego debe tener un borde definido y fondo oscuro para contrastar con la bola y los bloques.
 
 Comportamiento:
-- Estado: objetivo (3 letras), ingresados (array de letras, máximo 3),
-  cayendo (booleano que bloquea la interacción durante la animación).
-- Al click en "Soltar bola": si cayendo es false y ingresados tiene menos
-  de 3 letras, arranca la caída. La bola aparece arriba del primer peg y
-  baja fila por fila. En cada fila decide al azar 50/50 izquierda o
-  derecha, y se desplaza media columna hacia ese lado mientras baja una
-  fila. Cada paso dura 220ms. Después de la sexta fila cae en la canaleta
-  correspondiente y su letra se agrega a ingresados.
-- Al click en "Borrar último": saca la última letra de ingresados. No hace
-  falta soltar ninguna bola para borrar.
-- Cuando ingresados llega a 3 letras, comparar con objetivo y mostrar en el
-  footer si la verificación pasó o falló, con un botón para reiniciar que
-  genera un objetivo nuevo y vacía ingresados.
+- Estado: jugando (booleano), bolaLanzada (booleano), cookiesRestantes (número, inicia en 15), bolaPos ({x, y}), bolaVel ({vx, vy}), paletaX (número).
+- Control de la paleta: el evento mousemove sobre el contenedor de la arena actualiza paletaX centrado en el cursor, restringido a los límites izquierdo y derecho del área.
+- Lanzamiento: al hacer click en la arena, si bolaLanzada es false, la bola adquiere velocidad vertical hacia arriba (-vy) y arranca el loop de animación (requestAnimationFrame).
+- Físicas y Colisiones:
+  - La bola rebota en las paredes izquierda, derecha y techo del área de juego.
+  - Rebote en la paleta: si la bola impacta la paleta, invierte vy y ajusta vx según la distancia relativa al centro de la paleta (más abierto hacia los extremos).
+  - Colisión con bloques de cookies: si la bola solapa un bloque activo, dicho bloque se elimina del DOM (o se oculta), la bola invierte su dirección vertical (vy), y cookiesRestantes disminuye en 1.
+  - Bloque objetivo "RECHAZAR TODO": mientras queden cookies, actúa como pared indestructible y hace rebotar la bola. Cuando cookiesRestantes llega a 0, impactar este bloque declara la victoria: el modal muestra "Has rechazado todas las cookies exitosamente" y se cierra tras 1.5s, permitiendo leer el artículo.
+- La trampa hostil (derrota por caída):
+  - Si la bola supera el borde inferior de la paleta, cae al vacío.
+  - En ese instante la bola se detiene y se dispara el mensaje: "¡Pelota perdida! Por inacción se asume tu consentimiento tácito (Art. 404 RGPD). Todas las cookies han sido aceptadas."
+  - El modal se cierra automáticamente tras 2 segundos y el artículo queda desbloqueado.
+- Botón "Aceptar todas las cookies": al clickearlo, cierra el modal inmediatamente sin jugar.
 
 Constraints:
-- Un solo archivo HTML, con el CSS en un <style> y el JS en un <script>.
-- Vanilla JS, sin frameworks ni dependencias externas.
-- Los pegs, la bola y las canaletas son elementos del DOM posicionados con
-  CSS. No usar <canvas>: quiero poder ver el estado reflejado en el DOM.
+- Un solo archivo HTML, con el CSS dentro de <style> y el JS dentro de <script>.
+- Vanilla JS puro, sin frameworks ni dependencias externas.
+- Todos los elementos del juego (arena, paleta, bola, bloques y objetivo) deben ser elementos del DOM (divs posicionados con absolute/transform). No usar <canvas>: el estado y la destrucción de bloques deben verse reflejados directamente en el árbol del DOM.
 ```
 
 **Qué intentaba lograr:** el artefacto entero de una sola vez, nombrando las cinco capas — estructura con etiquetas semánticas, estilo, comportamiento expresado como estado, y constraints de empaque.
 
-**Qué devolvió:** el tablero funcionando, con las 4 filas de pegs, las 5 canaletas y la animación de caída. Respetó los tres constraints: un solo archivo, sin dependencias, y pegs y bola como elementos del DOM en lugar de `<canvas>`.
+**Qué devolvió:** el sistema para rechzar las coquies uncionando y la pagina  web de fondo similada
 
-**Qué hice con eso:** lo acepté. Pero el prompt tenía dos ambigüedades que no vi al escribirlo y que el modelo resolvió por su cuenta — están detalladas en el README, porque son lo más interesante de esta entrega.
+**Qué hice con eso:** lo acepté. Pero el la pagina web de fondo simulada no tenia forma de volver a configurar las cokkies.
 
 ---
 
-## 2 — Iterar sobre el estado: reordenar las canaletas
+## 2 — Agregar la posibilidad de volver a conigurar las cokkies
 
 ```
-Agregale al captcha dos estados: `letras` (el array de 5 letras de las
-canaletas, hoy fijas en el HTML) y `seleccionada` (el índice de la canaleta
-tocada primero, o null).
+Modificá el código anterior para permitir al usuario volver a abrir el gestor de cookies desde la página de fondo una vez cerrado el modal.
 
-Click en una canaleta con `seleccionada` en null: pasa a ser ese índice y la
-canaleta se marca.
-Click en otra canaleta: se intercambian las dos letras dentro de `letras`,
-`seleccionada` vuelve a null y se sacan las marcas.
-Click en la canaleta ya seleccionada: `seleccionada` vuelve a null sin
-intercambiar nada.
+Estructura:
+- En la página de fondo (el artículo simulado):
+  - Agregar al final un <footer> con derechos de autor y un enlace/botón sutil: "Configuración de cookies".
+  - Opcional: un pequeño botón flotante discreto en la esquina inferior izquierda (ícono o texto "🍪 Privacidad").
+- En el modal del juego:
+  - Un indicador en el <header> que muestre el "Estado actual del consentimiento": "Aceptadas (explícito)", "Aceptadas (por abandono/tácito)" o "Rechazadas".
 
-Dos reglas: mientras `cayendo` es true los clicks en canaletas no hacen
-nada, y los porcentajes pertenecen a la posición, no a la letra — al
-intercambiar, los números no se mueven.
+Estilo:
+- Enlace del footer del artículo: diseño típico de pie de página corporativo (texto gris claro, tamaño reducido ~12px, centrado o alineado con términos y condiciones).
+- Indicador de estado en el modal: una pequeña etiqueta (badge) con color condicional:
+  - Verde: si fueron aceptadas.
+  - Rojo/Naranja: si fueron aceptadas por inacción/caída de bola.
+  - Azul o Gris: si fueron rechazadas.
+
+Comportamiento:
+- Al hacer click en "Configuración de cookies" (o en el botón flotante):
+  - Se vuelve a mostrar el overlay oscuro y el modal centrado.
+  - Se reinicia el estado completo del juego de Arkanoid:
+    - Se reconstruyen y vuelven a insertar en el DOM los 15 bloques de cookies originales.
+    - La bola vuelve a su posición inicial sobre la paleta.
+    - La variable bolaLanzada vuelve a false y cookiesRestantes a 15.
+    - La barra "RECHAZAR TODO" vuelve a su estado bloqueado.
+    - El área de mensajes del juego se limpia a las instrucciones iniciales.
+  - Si el usuario vuelve a perder la bola o vuelve a clickear "Aceptar todas", el estado de consentimiento se actualiza nuevamente y el ciclo se repite.
+
+Constraints:
+- Mantener todo en el mismo archivo único (HTML + <style> + <script>).
+- No romper la física ni los eventos existentes del juego.
+- Vanilla JS, manipulación limpia del DOM para la regeneración de los bloques.
 ```
 
-**Qué intentaba lograr:** devolverle agencia al usuario. Sin esto el captcha es una tragamonedas: mirás caer la bola y no podés hacer nada. Con esto podés poner en el centro la letra que necesitás, que es donde la probabilidad es más alta.
+**Qué intentaba lograr:** La capacidad de volver ah configurar las cokkies y un indicador claseo de cual fue la resolucion anterior.
 
-**Por qué está escrito así:** las tres líneas de click son la ida y **dos** vueltas distintas — completar el intercambio, y cancelar la selección. Nombrar solo la ida deja al modelo inventando cómo se sale del estado, y lo más común es que no haya forma de cancelar.
-
-Las dos reglas del final previenen bugs concretos. Sin la primera, reordenar con la bola en el aire la hace aterrizar sobre una letra distinta de la que había cuando soltaste. Sin la segunda, el modelo mueve el porcentaje junto con la letra, porque están renderizados en el mismo elemento — es la confusión clásica entre el estado y su reflejo en el DOM.
-
-**Qué devolvió:** las tres transiciones correctas y las dos reglas respetadas. Los porcentajes se quedaron en su posición al intercambiar.
+**Qué devolvió:** Implemento en el boton y la identificacion de estado solicitados
 
 ---
 
