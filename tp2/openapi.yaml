@@ -1,0 +1,317 @@
+openapi: 3.1.0
+info:
+  title: API de Seguimiento de Proyectos y Hitos
+  version: 1.0.0
+  description: API REST para el seguimiento, estado y ciclo de vida de proyectos de software y sus respectivos hitos (milestones).
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Servidor local de desarrollo
+
+paths:
+  /projects:
+    get:
+      summary: Listar todos los proyectos
+      operationId: listProjects
+      description: Retorna la lista completa de proyectos registrados en el sistema.
+      responses:
+        '200':
+          description: Lista de proyectos obtenida correctamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+
+    post:
+      summary: Crear un nuevo proyecto
+      operationId: createProject
+      description: Crea un nuevo proyecto con los datos provistos. Genera el ID y calcula el estado de salud inicial.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectInput'
+      responses:
+        '201':
+          description: Proyecto creado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /projects/{projectId}:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+
+    get:
+      summary: Obtener el detalle de un proyecto
+      operationId: getProjectById
+      description: Retorna los datos detallados de un proyecto específico según su identificador.
+      responses:
+        '200':
+          description: Proyecto encontrado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Eliminar un proyecto
+      operationId: deleteProject
+      description: Elimina un proyecto y todos sus recursos asociados por identificador.
+      responses:
+        '204':
+          description: Proyecto eliminado exitosamente. No retorna contenido.
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /projects/{projectId}/milestones:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+
+    get:
+      summary: Listar hitos de un proyecto
+      operationId: listMilestonesByProject
+      description: Retorna la lista de hitos asociados al proyecto especificado.
+      responses:
+        '200':
+          description: Lista de hitos obtenida correctamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Milestone'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    post:
+      summary: Crear un hito para un proyecto
+      operationId: createMilestone
+      description: Crea un nuevo hito asociado al proyecto indicado en el path.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MilestoneInput'
+      responses:
+        '201':
+          description: Hito creado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Milestone'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /projects/{projectId}/milestones/{milestoneId}:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+      - $ref: '#/components/parameters/MilestoneId'
+
+    delete:
+      summary: Eliminar un hito de un proyecto
+      operationId: deleteMilestone
+      description: Elimina un hito específico asociado a un proyecto.
+      responses:
+        '204':
+          description: Hito eliminado exitosamente. No retorna contenido.
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  parameters:
+    ProjectId:
+      name: projectId
+      in: path
+      required: true
+      description: Identificador numérico único del proyecto.
+      schema:
+        type: integer
+        example: 1
+
+    MilestoneId:
+      name: milestoneId
+      in: path
+      required: true
+      description: Identificador numérico único del hito (milestone).
+      schema:
+        type: integer
+        example: 101
+
+  responses:
+    BadRequest:
+      description: Solicitud incorrecta o faltan campos obligatorios.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: "Faltan campos obligatorios en el cuerpo de la solicitud."
+
+    NotFound:
+      description: El recurso solicitado no fue encontrado.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: "Recurso no encontrado."
+
+  schemas:
+    Project:
+      type: object
+      description: Representación completa de un proyecto (salida del servidor).
+      required:
+        - id
+        - name
+        - target_date
+        - stage
+        - health_status
+      properties:
+        id:
+          type: integer
+          description: Identificador único asignado por el servidor.
+          example: 1
+        name:
+          type: string
+          description: Nombre del proyecto.
+          example: Sistema de Facturación Electrónica
+        target_date:
+          type: string
+          format: date
+          description: Fecha objetivo de entrega o finalización.
+          example: '2026-11-30'
+        stage:
+          type: string
+          enum:
+            - PLANNING
+            - IN_PROGRESS
+            - TESTING
+            - READY_FOR_DEPLOY
+            - DONE
+          description: Etapa actual del ciclo de vida del proyecto.
+          example: IN_PROGRESS
+        health_status:
+          type: string
+          readOnly: true
+          enum:
+            - ON_TRACK
+            - AT_RISK
+            - DELAYED
+          description: Estado de salud calculado por el servidor según avance y plazos.
+          example: ON_TRACK
+
+    ProjectInput:
+      type: object
+      description: Datos necesarios para crear un proyecto (entrada del cliente).
+      required:
+        - name
+        - target_date
+        - stage
+      properties:
+        name:
+          type: string
+          description: Nombre del proyecto.
+          example: Sistema de Facturación Electrónica
+        target_date:
+          type: string
+          format: date
+          description: Fecha objetivo de entrega o finalización.
+          example: '2026-11-30'
+        stage:
+          type: string
+          enum:
+            - PLANNING
+            - IN_PROGRESS
+            - TESTING
+            - READY_FOR_DEPLOY
+            - DONE
+          description: Etapa inicial del proyecto.
+          example: PLANNING
+
+    Milestone:
+      type: object
+      description: Representación completa de un hito (salida del servidor).
+      required:
+        - id
+        - title
+        - due_date
+        - status
+        - project_id
+      properties:
+        id:
+          type: integer
+          description: Identificador único del hito asignado por el servidor.
+          example: 101
+        title:
+          type: string
+          description: Título descriptivo del hito.
+          example: Definición y diseño de arquitectura
+        due_date:
+          type: string
+          format: date
+          description: Fecha límite prevista para alcanzar el hito.
+          example: '2026-10-15'
+        status:
+          type: string
+          enum:
+            - PENDING
+            - IN_PROGRESS
+            - COMPLETED
+          default: PENDING
+          description: Estado del hito.
+          example: PENDING
+        project_id:
+          type: integer
+          readOnly: true
+          description: Identificador del proyecto al que pertenece este hito (asociado vía path).
+          example: 1
+
+    MilestoneInput:
+      type: object
+      description: Datos necesarios para registrar un nuevo hito (entrada del cliente).
+      required:
+        - title
+        - due_date
+      properties:
+        title:
+          type: string
+          description: Título descriptivo del hito.
+          example: Definición y diseño de arquitectura
+        due_date:
+          type: string
+          format: date
+          description: Fecha límite prevista para alcanzar el hito.
+          example: '2026-10-15'
+        status:
+          type: string
+          enum:
+            - PENDING
+            - IN_PROGRESS
+            - COMPLETED
+          default: PENDING
+          description: Estado inicial del hito (opcional, por defecto PENDING).
+          example: PENDING
+
+    ErrorResponse:
+      type: object
+      description: Estructura estándar de respuesta para errores de cliente (4xx).
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Mensaje descriptivo del error.
+          example: El proyecto con id 1 no existe.
+
