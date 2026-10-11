@@ -35,7 +35,7 @@ export default function Navbar({ onNewProjectClick }) {
               className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-sm font-semibold rounded-lg shadow-sm hover:shadow transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               <Plus className="w-4 h-4" />
-              <span>+ Nuevo Proyecto</span>
+              <span>Nuevo Proyecto</span>
             </button>
           </div>
         </div>
