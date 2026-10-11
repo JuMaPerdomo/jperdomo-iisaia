@@ -402,3 +402,4 @@ Instrucciones claras de inicio rápido (Quickstart) para cualquier evaluador que
 - [ ] **Step 3: Commit final de documentación**
 Run: `git add consigna.md README.md backend/README.md frontend/README.md`
 Run: `git commit -m "docs: complete consigna.md delivery report and project readmes for demo day"`
+

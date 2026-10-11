@@ -9,14 +9,18 @@
 ## 1. Contexto y Objetivos
 
 ### 1.1 Problema
+
 En entornos de desarrollo de software, la gestión simultánea de múltiples proyectos suele adolecer de falta de visibilidad ejecutiva centralizada. La dispersión de información en planillas o canales de mensajería genera detección tardía de desvíos en fechas comprometidas de entrega (*target dates*), poniendo en riesgo el paso a producción.
 
 ### 1.2 Propósito del Sistema
+
 Proveer un **Dashboard de Seguimiento de Proyectos** que permita:
+
 1. **A Tech Leads / Project Managers:** Registrar proyectos, estructurar sus hitos (*milestones*) por fase técnica y actualizar su evolución de forma ágil.
 2. **A Directores y Líderes de Área:** Monitorear en tiempo real el estado global mediante métricas clave (KPIs), gráficos de distribución de etapas y un semáforo de salud/riesgo automatizado.
 
 ### 1.3 Alcance y Requisitos de Entrega (Alineación con `consigna.md`)
+
 * **Aplicación Completa:** Frontend interactivo, Backend REST y Persistencia en Base de Datos relacional.
 * **Trazabilidad y Evidencia del Proceso:** Especificación (`spec`), Plan de implementación (`plan`), historial de commits y archivo `AGENTS.md` como garante de la gobernanza del contexto del agente de IA.
 * **Defensa Técnica (Demo Day):** Justificación de arquitectura, decisiones de diseño, gestión de contexto y resolución de desvíos.
@@ -26,13 +30,16 @@ Proveer un **Dashboard de Seguimiento de Proyectos** que permita:
 ## 2. Arquitectura del Sistema
 
 ### 2.1 Estilo Arquitectónico
+
 Se adopta una **Arquitectura Desacoplada (Client-Server)** en monorepo estructurado:
+
 * **Backend API (`/backend`):** Servicio REST en **FastAPI** (Python 3.10+) encargado de persistencia, validaciones de esquema, reglas de negocio y cálculo dinámico de salud.
 * **Frontend SPA (`/frontend`):** Aplicación web reactiva construida con **Vite + React + Tailwind CSS**, visualizando métricas interactivas mediante **Chart.js**.
 * **Persistencia (`/backend/projects.db`):** Base de datos relacional embebida **SQLite** administrada mediante **SQLAlchemy 2.0**.
 * **Gobierno de IA (`AGENTS.md`):** Archivo raíz que instruye a los agentes sobre convenciones, ejecución, tests y límites arquitectónicos para mantener el hilo contextual entre sesiones.
 
 ### 2.2 Estructura de Archivos
+
 ```
 tp-final/
 ├── AGENTS.md                                     # Reglas operativas y contexto para agentes de IA
@@ -86,6 +93,7 @@ tp-final/
 ## 3. Modelo de Datos y Dominio
 
 ### 3.1 Enumeraciones de Dominio
+
 * **`ProjectStage` (Etapas del Ciclo de Vida):**
   * `PLANNING`: Planificación y definición de requerimientos.
   * `DESIGN`: Diseño conceptual y UX/UI.
@@ -104,6 +112,7 @@ tp-final/
   * `COMPLETED`: Hito finalizado.
 
 ### 3.2 Diagrama Entidad-Relación (SQLAlchemy)
+
 ```mermaid
 erDiagram
     PROJECT ||--o{ MILESTONE : "contiene (1:N)"
@@ -130,7 +139,9 @@ erDiagram
 ```
 
 ### 3.3 Reglas de Negocio y Algoritmo de Salud Dinámica (`services.py`)
+
 La salud **no se almacena de forma rígida en la BD**, sino que se calcula dinámicamente al consultar los proyectos (`today = date.today()`):
+
 1. **Condición `COMPLETED`:** Si todos los hitos del proyecto tienen estado `COMPLETED` (o si la etapa actual es `DONE`).
 2. **Condición `DELAYED`:** Si `today > target_date` y el proyecto no está completado.
 3. **Condición `AT_RISK`:**
@@ -144,6 +155,7 @@ $$\text{progreso} = \left( \frac{\text{hitos\_completados}}{\text{total\_hitos}}
 
 **Plantilla de Hitos por Defecto:**
 Al crear un nuevo proyecto, el backend inicializa automáticamente 5 hitos base asociados a las etapas principales:
+
 1. *"Definición de alcance y arquitectura"* (`PLANNING`)
 2. *"Diseño de interfaz y contratos"* (`DESIGN`)
 3. *"Construcción e implementación"* (`DEVELOPMENT`)
@@ -155,6 +167,7 @@ Al crear un nuevo proyecto, el backend inicializa automáticamente 5 hitos base 
 ## 4. Contrato de la API REST
 
 ### 4.1 Endpoints de Proyectos (`/api/projects`)
+
 * `GET /api/projects`: Lista proyectos con filtros opcionales (`?stage=DEVELOPMENT&health=AT_RISK&search=query`). Devuelve cada proyecto con su `health_status`, `progress_percentage`, `current_stage` e hitos asociados.
 * `POST /api/projects`: Crea un proyecto. Body: `{ name: str, description?: str, target_date: date }`. Genera los hitos base por defecto. Retorna `201 Created`.
 * `GET /api/projects/{id}`: Detalle completo de un proyecto puntual con sus hitos ordenados.
@@ -162,12 +175,15 @@ Al crear un nuevo proyecto, el backend inicializa automáticamente 5 hitos base 
 * `DELETE /api/projects/{id}`: Eliminación física en cascada del proyecto y sus hitos. Retorna `204 No Content`.
 
 ### 4.2 Endpoints de Milestones (`/api/projects/{project_id}/milestones`)
+
 * `POST /api/projects/{project_id}/milestones`: Agrega un hito personalizado. Body: `{ title: str, stage: str, due_date?: date }`.
 * `PATCH /api/projects/{project_id}/milestones/{milestone_id}`: Actualización de estado del hito (`status`: `PENDING` | `IN_PROGRESS` | `COMPLETED`) o título/fase.
 * `DELETE /api/projects/{project_id}/milestones/{milestone_id}`: Elimina un hito puntual.
 
 ### 4.3 Endpoints de Métricas (`/api/metrics`)
+
 * `GET /api/metrics`: Retorna estadísticas agregadas calculadas al vuelo para el dashboard:
+
   ```json
   {
     "total_projects": 12,
@@ -195,6 +211,7 @@ Al crear un nuevo proyecto, el backend inicializa automáticamente 5 hitos base 
 ## 5. Diseño de Interfaz de Usuario (Frontend)
 
 ### 5.1 Jerarquía Visual y Componentes
+
 1. **Header / Navbar:** Logo corporativo, título del sistema y botón de acción principal destacado `+ Nuevo Proyecto`.
 2. **Dashboard de KPIs (`MetricCards.jsx`):** Cuatro tarjetas con contadores grandes y códigos de color:
    * Total de Proyectos (Gris/Azul)
@@ -243,6 +260,7 @@ Al crear un nuevo proyecto, el backend inicializa automáticamente 5 hitos base 
 ## 8. Estrategia de Entrega y Defensa (Demo Day)
 
 El proyecto documentará explícitamente en `consigna.md`:
+
 1. **Cómo se ejecuta:** Instrucciones paso a paso para levantar backend (`uvicorn`) y frontend (`npm run dev`).
 2. **Arquitectura:** Diagramas y justificación de FastAPI + React/Vite + SQLite.
 3. **Qué decidí yo:** Elección del cálculo dinámico de salud vs persistencia estática, generación de hitos por defecto, y desacoplamiento frontend/backend.
