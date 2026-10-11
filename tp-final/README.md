@@ -39,7 +39,8 @@ tp-final/
 │   ├── src/                  # Componentes interactivos, gráficas y cliente API
 │   └── package.json
 ├── docs/superpowers/         # Especificación técnica (specs) y planes de desarrollo (plans)
-├── consigna.md               # Informe oficial de entrega y defensa para el Demo Day
+├── informe.md                # Informe oficial de entrega y defensa para el Demo Day
+├── consigna.md               # Requisitos académicos originales
 └── AGENTS.md                 # Contrato operativo y gobernanza de contexto para agentes de IA
 ```
 
@@ -135,6 +136,8 @@ cd frontend && npm run build
 
 ## 📄 Documentación Adicional
 
-- [Documento de Entrega y Defensa (consigna.md)](file:///c:/git/jperdomo-iisaia/tp-final/consigna.md): Respuestas detalladas a los 5 ejes requeridos para el Demo Day.
+- [Informe de Entrega y Defensa (informe.md)](file:///c:/git/jperdomo-iisaia/tp-final/informe.md): Respuestas detalladas a los 5 ejes requeridos para el Demo Day.
+- [Consigna Original (consigna.md)](file:///c:/git/jperdomo-iisaia/tp-final/consigna.md): Requisitos académicos y pauta de evaluación.
 - [Gobernanza de Agentes (AGENTS.md)](file:///c:/git/jperdomo-iisaia/tp-final/AGENTS.md): Reglas de arquitectura, testing y contexto para agentes de IA.
 - [Especificación Técnica](file:///c:/git/jperdomo-iisaia/tp-final/docs/superpowers/specs/2026-10-11-dashboard-seguimiento-proyectos-design.md): Documento de diseño formal del sistema.
+
