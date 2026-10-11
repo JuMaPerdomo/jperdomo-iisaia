@@ -4,7 +4,21 @@ Una plataforma web con dos juegos, Tetris y Snake, que guarda el puntaje de cada
 
 ## Cómo se ejecuta
 
-Hace falta Python 3.11 o superior, [uv](https://docs.astral.sh/uv/) y conexión a internet, porque Phaser se carga desde un CDN.
+Hace falta Python 3.11 o superior, [uv](https://docs.astral.sh/uv/), conexión a internet, porque Phaser se carga desde un CDN, y una cuenta de [Auth0](https://auth0.com/), porque todo el sitio pide iniciar sesión con Google.
+
+En el dashboard de Auth0, una sola vez:
+
+1. Crear una aplicación de tipo *Regular Web Application*.
+2. En *Settings*, poner `http://127.0.0.1:8000/callback` en *Allowed Callback URLs* y `http://127.0.0.1:8000/logged-out` en *Allowed Logout URLs*. Si usás el puerto 8765, agregá las mismas dos direcciones con ese puerto. Usá siempre `127.0.0.1` y no `localhost`: Auth0 compara la dirección exacta y rechaza el login si no coincide.
+3. En *Authentication → Social*, activar Google (`google-oauth2`) para la aplicación.
+
+Después copiar `.env.example` a `.env` y completarlo. `AUTH0_DOMAIN` es el dominio del tenant sin `https://`, y el client ID y el secret están en *Settings*. `SESSION_SECRET` firma la cookie de sesión y puede ser cualquier texto largo al azar:
+
+```bash
+uv run python -c "import secrets; print(secrets.token_urlsafe(32))"
+```
+
+Si falta alguna de las cuatro variables, el servidor no arranca y dice cuál.
 
 ```bash
 cd tp-final
@@ -12,7 +26,9 @@ uv sync
 uv run fastapi dev backend/main.py
 ```
 
-Abrir `http://127.0.0.1:8000`. La documentación interactiva de la API está en `http://127.0.0.1:8000/docs`.
+Abrir `http://127.0.0.1:8000`. Sin sesión, cualquier página lleva al login de Google. La documentación interactiva de la API está en `http://127.0.0.1:8000/docs`, también detrás del login.
+
+Al iniciar sesión, Auth0 muestra una pantalla *Authorize App* para aceptar. En direcciones locales no se puede saltear, así que aparece cada vez.
 
 Si el servidor no arranca y muestra `[WinError 10013]` o `address already in use`, es que otro programa está usando el puerto 8000. En ese caso hay que levantarlo en otro puerto y abrir esa dirección:
 
@@ -20,7 +36,9 @@ Si el servidor no arranca y muestra `[WinError 10013]` o `address already in use
 uv run fastapi dev backend/main.py --port 8765
 ```
 
-No hay variables de entorno. La base `scores.db` se crea al arrancar, con los dos juegos ya cargados. Para vaciar el ranking alcanza con borrar ese archivo.
+La base `scores.db` se crea al arrancar, con los dos juegos ya cargados. Para vaciar el ranking alcanza con borrar ese archivo.
+
+Los tests se corren con `uv run pytest`. Usan una base temporal y un Auth0 simulado, así que no tocan `scores.db` ni necesitan el `.env`.
 
 ## Arquitectura
 
@@ -29,7 +47,8 @@ Un solo proceso sirve la API bajo `/api` y los archivos del frontend desde `/`.
 ```
 tp-final/
 ├── backend/
-│   ├── main.py         app, creación de tablas, seed de juegos, montaje de estáticos
+│   ├── main.py         app, middlewares, creación de tablas, seed de juegos, montaje de estáticos
+│   ├── auth.py         login con Auth0 y middleware que exige sesión
 │   ├── db.py           engine de SQLite y sesión por request
 │   ├── models.py       tablas Game y Score
 │   ├── schemas.py      lo que entra y lo que sale por la API
@@ -47,16 +66,26 @@ tp-final/
 │           ├── common.js   teclado y fin de partida
 │           ├── snake.js
 │           └── tetris.js
-└── docs/plan.md        el plan con el que arranqué
+├── tests/              pytest sobre la API y el login, con Auth0 simulado
+├── .env.example        las variables que necesita Auth0
+└── docs/
+    ├── plan.md         el plan con el que arranqué
+    └── superpowers/    spec y plan del login con Auth0
 ```
 
 ### Endpoints
 
 | Method | Path | Respuestas |
 |--------|------|------------|
-| `GET` | `/api/games` | `200` lista de juegos |
-| `GET` | `/api/games/{slug}/scores?limit=10` | `200` mejores puntajes, de mayor a menor · `404` el juego no existe · `422` `limit` fuera de 1 a 50 |
-| `POST` | `/api/games/{slug}/scores` | `201` puntaje creado · `404` el juego no existe · `422` nombre vacío o de más de 20 caracteres, o puntaje negativo |
+| `GET` | `/api/games` | `200` lista de juegos · `401` sin sesión |
+| `GET` | `/api/games/{slug}/scores?limit=10` | `200` mejores puntajes, de mayor a menor · `401` sin sesión · `404` el juego no existe · `422` `limit` fuera de 1 a 50 |
+| `POST` | `/api/games/{slug}/scores` | `201` puntaje creado · `401` sin sesión · `404` el juego no existe · `422` nombre vacío o de más de 20 caracteres, o puntaje negativo |
+| `GET` | `/login` | `302` a Auth0, que va directo a Google |
+| `GET` | `/callback` | `302` a `/` con la sesión iniciada · `400` si el login falló o se canceló |
+| `GET` | `/logout` | `302` a Auth0 para cerrar la sesión, que vuelve a `/logged-out` |
+| `GET` | `/logged-out` | `200` página que confirma que la sesión se cerró, con un link para volver a entrar |
+
+Sin sesión, cualquier otra ruta, páginas y `/docs` incluidas, redirige a `/login`.
 
 A igual puntaje, queda arriba el que se guardó primero.
 
@@ -84,7 +113,11 @@ Cada juego es una `Phaser.Scene`. Al terminar la partida, la escena emite `gameo
 
 **Sin paso de build.** Uso ES modules del navegador y Phaser por CDN con versión fija (`3.90.0`), así que para levantar el proyecto no hace falta Node. El costo es que sin internet los juegos no cargan. En ese caso la página lo avisa en vez de quedar en blanco.
 
-**Nickname libre, sin cuentas.** Para un ranking alcanza con un nombre. Un login habría duplicado el proyecto con algo que no es el tema.
+**Login con Google, pero el nombre del ranking lo elige cada uno.** Todo el sitio pide iniciar sesión con Google a través de Auth0. El nombre que aparece en el ranking lo sigue escribiendo el jugador al guardar, así que el contrato de `POST /scores` no cambió.
+
+**El login vive en el servidor, no en el navegador.** Auth0 tiene un SDK para que el navegador haga el login y le mande un token a la API. Lo descarté porque así las páginas siguen siendo públicas y sólo se protegen los datos. Como un solo proceso sirve la API y el frontend, FastAPI hace el login con Authlib y guarda el usuario en una cookie de sesión firmada. Un middleware manda a `/login` cualquier request sin sesión, páginas incluidas.
+
+**Tests para la API.** Antes verificaba todo jugando en el navegador. Con el login, probar un endpoint a mano implica pasar por Google cada vez, así que sumé tests con pytest. Usan una base temporal y reemplazan las dos llamadas a Auth0, así que corren sin red y sin `.env`. Los juegos los sigo probando jugando.
 
 **El juego va en el path y no se repite en el body.** `ScoreInput` tiene `player` y `points`, nada más. Si el body también llevara el juego, podría contradecir al path y habría que decidir cuál gana.
 
@@ -106,9 +139,13 @@ Hice un commit por cada pieza que funcionaba: backend, home, Snake, Tetris y ran
 
 Mantuve los archivos por debajo de 300 líneas y las funciones por debajo de 50. `score-panel.js` se pasó y lo partí antes de seguir. Con archivos chicos alcanza con cargar el que hace falta: para arreglar Tetris no necesité tener la API en contexto, gracias al contrato de `gameover`.
 
+La configuración del agente está versionada junto al código: `.claude/settings.json` con los permisos de este proyecto (editar backend y frontend sí; `docs/plan.md` y `scores.db` no), una skill con el procedimiento para agregar un juego, un sub-agent de solo lectura para preguntas que cruzan las dos mitades y dos comandos cortos, `/explicar` y `/pre-entrega`. Los `CLAUDE.md` describen el código; las reglas de `.claude/rules/` dicen qué hacer y qué no.
+
 La verificación la hizo el agente con el MCP de Playwright, habilitado en `.claude/settings.local.json`. Jugó las partidas, leyó el estado de cada escena desde el navegador (posición de la pieza, largo de la snake, puntaje), guardó puntajes y cortó el servidor para ver los mensajes de error.
 
 El plan y lo construido no coinciden del todo. El plan tenía un `finish.js`, que pasó a ser `common.js` cuando apareció el problema del teclado, y no tenía `score-panel.js`, que salió de separar el ranking de `game-page.js`. Dejé el plan como estaba y las diferencias quedan explicadas acá.
+
+El login con Auth0 lo trabajé distinto, con las skills de superpowers. Primero el agente me hizo preguntas de a una hasta cerrar el diseño, que quedó en [un spec](docs/superpowers/specs/2026-09-29-tp-final-auth0-design.md). Después escribió [un plan de implementación](docs/superpowers/plans/2026-09-29-tp-final-auth0.md) con el código de cada tarea, y lo ejecutaron sub-agents: uno implementaba cada tarea y otro la revisaba antes de pasar a la siguiente. Los dos documentos están en inglés, tal como los generó el agente, y describen lo planeado. La página `/logged-out` no figura porque salió después, probando en el navegador.
 
 ## Qué salió mal
 
@@ -119,3 +156,5 @@ El plan y lo construido no coinciden del todo. El plan tenía un `finish.js`, qu
 **El arreglo que parecía no andar.** Después de corregir la fecha, la API la seguía devolviendo sin zona. `fastapi dev` había detectado el cambio y avisado que recargaba, pero en Windows el proceso que recarga murió y dejó vivo al worker viejo, que siguió ocupando el puerto con el código anterior. Por eso un servidor nuevo tampoco podía arrancar. `netstat` mostró que el puerto figuraba a nombre de un proceso que ya no existía. Al cerrar el worker huérfano, el arreglo funcionó sin cambiar una línea. Antes de volver a tocar el código conviene confirmar qué proceso está respondiendo.
 
 **Snake arrancaba sola.** Al abrir la página la snake ya se movía, y si no reaccionabas en menos de dos segundos chocaba contra la pared. Se vio en una captura: la partida había terminado antes de tocar una tecla. El plan describía las reglas pero nunca decía cuándo empieza la partida, y el agente hizo lo más literal, que era arrancar al crear la escena. El hueco estaba en el plan, no en el código. Ahora la partida espera la primera flecha. En Tetris no hizo falta porque la pieza tarda 800 ms en bajar cada fila y hay tiempo para ubicarse.
+
+**Cerrar sesión no cerraba nada.** El logout borraba la cookie, Auth0 cerraba su sesión y después volvía a `/`. Sin sesión, `/` manda a `/login`, que va directo a Google, y Google seguía con la cuenta abierta, así que en un segundo estaba frente a la pantalla de autorización de Auth0, a un clic de entrar de nuevo. Los tests pasaban porque simulan a Auth0 y a Google: lo vi recién probando en el navegador. Ahora el logout vuelve a `/logged-out`, una página pública que avisa que la sesión se cerró y ofrece volver a entrar.

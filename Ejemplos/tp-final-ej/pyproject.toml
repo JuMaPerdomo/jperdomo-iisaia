@@ -4,9 +4,26 @@ version = "0.1.0"
 description = "Plataforma web con Tetris y Snake que guarda los puntajes de cada partida"
 requires-python = ">=3.11"
 dependencies = [
+    "authlib>=1.8.0",
     "fastapi[standard]",
+    "itsdangerous>=2.2.0",
+    "python-dotenv>=1.2.3",
     "sqlmodel",
 ]
 
 [tool.uv]
 package = false
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+filterwarnings = [
+    "ignore:Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.:starlette.exceptions.StarletteDeprecationWarning",
+    "ignore:The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.:DeprecationWarning",
+    "ignore:The httpx module is deprecated; please use httpx2 instead.:authlib.deprecate.AuthlibDeprecationWarning",
+]
