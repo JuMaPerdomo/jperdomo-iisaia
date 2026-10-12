@@ -83,3 +83,4 @@ Los artefactos listos para servir se generarán en la carpeta `dist/`.
 - **Checklist de Hitos con Recálculo Inmediato:** Marcar un hito como completado o en progreso impacta al instante la barra de progreso del proyecto y su semáforo de salud.
 - **Filtros Combinables:** Permite buscar por texto libre (en nombre o descripción) y simultáneamente filtrar por estado de salud (`ON TRACK`, `AT RISK`, `DELAYED`, `COMPLETED`).
 - **Gestión Completa (CRUD):** Creación y edición intuitiva a través de un modal con validaciones de formularios y confirmaciones de eliminación.
+- **Soporte de Dark Mode Persistente:** Modo oscuro por defecto con alternador en la barra de navegación (Sun/Moon), paleta equilibrada y guardado de preferencias en `localStorage`.

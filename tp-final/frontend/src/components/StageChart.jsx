@@ -34,8 +34,9 @@ const STAGES = [
  *
  * @param {Object} props
  * @param {Record<string, number>} [props.stageDistribution] - Key-value pair mapping stage enums to counts
+ * @param {boolean} [props.isDark] - Whether dark mode is currently active
  */
-export default function StageChart({ stageDistribution = {} }) {
+export default function StageChart({ stageDistribution = {}, isDark = false }) {
   const labels = STAGES.map((s) => s.label);
   const dataValues = STAGES.map((s) => (stageDistribution && stageDistribution[s.key] != null ? stageDistribution[s.key] : 0));
 
@@ -65,7 +66,7 @@ export default function StageChart({ stageDistribution = {} }) {
         display: false,
       },
       tooltip: {
-        backgroundColor: 'rgba(17, 24, 39, 0.9)',
+        backgroundColor: isDark ? 'rgba(31, 41, 55, 0.95)' : 'rgba(17, 24, 39, 0.9)',
         titleColor: '#fff',
         bodyColor: '#fff',
         padding: 10,
@@ -81,18 +82,18 @@ export default function StageChart({ stageDistribution = {} }) {
         ticks: {
           stepSize: 1,
           precision: 0,
-          color: '#6b7280',
+          color: isDark ? '#9ca3af' : '#6b7280',
           font: {
             size: 11,
           },
         },
         grid: {
-          color: 'rgba(243, 244, 246, 1)',
+          color: isDark ? 'rgba(75, 85, 99, 0.25)' : 'rgba(243, 244, 246, 1)',
         },
       },
       x: {
         ticks: {
-          color: '#4b5563',
+          color: isDark ? '#d1d5db' : '#4b5563',
           font: {
             size: 11,
             weight: '500',
@@ -106,13 +107,13 @@ export default function StageChart({ stageDistribution = {} }) {
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm transition-colors">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-base font-semibold text-gray-900">
+          <h2 className="text-base font-semibold text-gray-900 dark:text-white">
             Distribución por Fase del Ciclo de Vida
           </h2>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
             Cantidad de proyectos clasificados según su fase de avance actual
           </p>
         </div>

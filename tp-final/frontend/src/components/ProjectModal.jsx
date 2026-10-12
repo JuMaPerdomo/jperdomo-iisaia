@@ -122,16 +122,16 @@ export default function ProjectModal({
       aria-modal="true"
       aria-labelledby="modal-title"
       onClick={handleBackdropClick}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm transition-opacity animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm transition-opacity animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden transform transition-all">
+      <div className="relative w-full max-w-lg bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden transform transition-all">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between bg-gray-50/50 dark:bg-gray-850/50">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
               {isEditing ? <Edit3 className="w-4 h-4" /> : <FolderPlus className="w-4 h-4" />}
             </div>
-            <h2 id="modal-title" className="text-lg font-bold text-gray-900">
+            <h2 id="modal-title" className="text-lg font-bold text-gray-900 dark:text-white">
               {isEditing ? 'Editar Proyecto' : 'Crear Nuevo Proyecto'}
             </h2>
           </div>
@@ -139,7 +139,7 @@ export default function ProjectModal({
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/60 transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
             aria-label="Cerrar modal"
           >
             <X className="w-5 h-5" />
@@ -149,14 +149,14 @@ export default function ProjectModal({
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {errors.submit && (
-            <div className="p-3 text-xs bg-rose-50 border border-rose-200 text-rose-700 rounded-lg font-medium">
+            <div className="p-3 text-xs bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-400 rounded-lg font-medium">
               {errors.submit}
             </div>
           )}
 
           {/* Project Name */}
           <div>
-            <label htmlFor="project-name" className="block text-xs font-semibold text-gray-700 mb-1.5">
+            <label htmlFor="project-name" className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
               Nombre del Proyecto <span className="text-rose-500">*</span>
             </label>
             <input
@@ -168,26 +168,26 @@ export default function ProjectModal({
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="Ej. Portal de Clientes v2"
-              className={`w-full px-3.5 py-2 text-sm bg-white border rounded-lg text-gray-900 placeholder-gray-400 transition-colors focus:outline-none focus:ring-2 ${
+              className={`w-full px-3.5 py-2 text-sm bg-white dark:bg-gray-900 border rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-colors focus:outline-none focus:ring-2 ${
                 errors.name
-                  ? 'border-rose-300 focus:ring-rose-500 bg-rose-50/30'
-                  : 'border-gray-300 focus:ring-blue-500 focus:border-transparent'
+                  ? 'border-rose-300 focus:ring-rose-500 bg-rose-50/30 dark:bg-rose-950/30'
+                  : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-transparent'
               }`}
             />
             <div className="flex justify-between items-center mt-1">
               {errors.name ? (
-                <span className="text-xs text-rose-600 font-medium">{errors.name}</span>
+                <span className="text-xs text-rose-600 dark:text-rose-400 font-medium">{errors.name}</span>
               ) : (
                 <span />
               )}
-              <span className="text-[11px] text-gray-400">{formData.name.length}/100</span>
+              <span className="text-[11px] text-gray-400 dark:text-gray-500">{formData.name.length}/100</span>
             </div>
           </div>
 
           {/* Description */}
           <div>
-            <label htmlFor="project-description" className="block text-xs font-semibold text-gray-700 mb-1.5">
-              Descripción <span className="text-gray-400 font-normal">(opcional)</span>
+            <label htmlFor="project-description" className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+              Descripción <span className="text-gray-400 dark:text-gray-500 font-normal">(opcional)</span>
             </label>
             <textarea
               id="project-description"
@@ -196,13 +196,13 @@ export default function ProjectModal({
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="Breve resumen de objetivos, alcance técnico o contexto..."
-              className="w-full px-3.5 py-2 text-sm bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none"
+              className="w-full px-3.5 py-2 text-sm bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none"
             />
           </div>
 
           {/* Target Date */}
           <div>
-            <label htmlFor="project-target-date" className="block text-xs font-semibold text-gray-700 mb-1.5">
+            <label htmlFor="project-target-date" className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
               Fecha Objetivo de Entrega <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
@@ -213,28 +213,28 @@ export default function ProjectModal({
                 disabled={isSubmitting}
                 value={formData.target_date}
                 onChange={(e) => setFormData({ ...formData, target_date: e.target.value })}
-                className={`w-full px-3.5 py-2 text-sm bg-white border rounded-lg text-gray-900 transition-colors focus:outline-none focus:ring-2 ${
+                className={`w-full px-3.5 py-2 text-sm bg-white dark:bg-gray-900 border rounded-lg text-gray-900 dark:text-white transition-colors focus:outline-none focus:ring-2 ${
                   errors.target_date
-                    ? 'border-rose-300 focus:ring-rose-500 bg-rose-50/30'
-                    : 'border-gray-300 focus:ring-blue-500 focus:border-transparent'
+                    ? 'border-rose-300 focus:ring-rose-500 bg-rose-50/30 dark:bg-rose-950/30'
+                    : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-transparent'
                 }`}
               />
             </div>
             {errors.target_date && (
-              <p className="text-xs text-rose-600 font-medium mt-1">{errors.target_date}</p>
+              <p className="text-xs text-rose-600 dark:text-rose-400 font-medium mt-1">{errors.target_date}</p>
             )}
-            <p className="text-[11px] text-gray-500 mt-1">
+            <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
               Los proyectos con fecha vencida o próxima (&lt; 7 días) se clasificarán automáticamente en riesgo.
             </p>
           </div>
 
           {/* Modal Actions */}
-          <div className="pt-3 border-t border-gray-100 flex items-center justify-end gap-3">
+          <div className="pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 active:bg-gray-300 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
             >
               Cancelar
             </button>
