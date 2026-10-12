@@ -42,14 +42,14 @@ export default function MilestoneList({
 }) {
   if (!milestones || milestones.length === 0) {
     return (
-      <div className="py-4 text-center text-xs text-gray-500 dark:text-gray-400 bg-gray-50/70 dark:bg-gray-800/50 rounded-lg border border-dashed border-gray-200 dark:border-gray-700">
+      <div className="py-4 text-center text-xs text-gray-500 dark:text-gray-400 bg-gray-50/70 dark:bg-gray-950/70 rounded-lg border border-dashed border-gray-200 dark:border-gray-800">
         No hay hitos registrados para este proyecto.
       </div>
     );
   }
 
   return (
-    <ul className="divide-y divide-gray-100 dark:divide-gray-700/60 bg-gray-50/60 dark:bg-gray-800/40 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors">
+    <ul className="divide-y divide-gray-100 dark:divide-gray-800/80 bg-gray-50/60 dark:bg-gray-950/80 rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden transition-colors">
       {milestones.map((milestone) => {
         const isCompleted = milestone.status === 'COMPLETED';
         const stageInfo = STAGE_CONFIG[milestone.stage] || {
@@ -61,7 +61,7 @@ export default function MilestoneList({
         return (
           <li
             key={milestone.id}
-            className="flex items-center justify-between gap-3 px-3.5 py-2.5 hover:bg-gray-100/50 dark:hover:bg-gray-700/40 transition-colors"
+            className="flex items-center justify-between gap-3 px-3.5 py-2.5 hover:bg-gray-100/50 dark:hover:bg-gray-900/80 transition-colors"
           >
             {/* Checkbox and Title */}
             <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -71,7 +71,7 @@ export default function MilestoneList({
                 className={`w-5 h-5 rounded flex-shrink-0 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-emerald-500 ${
                   isCompleted
                     ? 'bg-emerald-600 text-white hover:bg-emerald-700'
-                    : 'border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:border-emerald-500 dark:hover:border-emerald-400'
+                    : 'border-2 border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-900 hover:border-emerald-500 dark:hover:border-emerald-400'
                 }`}
                 aria-label={isCompleted ? `Marcar "${milestone.title}" como pendiente` : `Marcar "${milestone.title}" como completado`}
               >
@@ -82,7 +82,7 @@ export default function MilestoneList({
                 className={`text-sm truncate transition-colors ${
                   isCompleted
                     ? 'line-through text-gray-400 dark:text-gray-500 font-normal'
-                    : 'text-gray-800 dark:text-gray-200 font-medium'
+                    : 'text-gray-800 dark:text-gray-100 font-medium'
                 }`}
                 title={milestone.title}
               >

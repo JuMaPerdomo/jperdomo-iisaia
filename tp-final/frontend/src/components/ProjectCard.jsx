@@ -226,19 +226,26 @@ export default function ProjectCard({
       </div>
 
       {/* Collapsible Accordion for Milestones */}
-      <div className="border-t border-gray-100 dark:border-gray-700/60 bg-gray-50/50 dark:bg-gray-850/50">
+      <div className="border-t border-gray-100 dark:border-gray-700/80 bg-gray-50/60 dark:bg-gray-900/70 transition-colors">
         <button
           type="button"
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full px-5 py-3 flex items-center justify-between text-xs font-semibold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100/60 dark:hover:bg-gray-750/50 transition-colors focus:outline-none"
+          className="group w-full px-5 py-3 flex items-center justify-between text-xs font-semibold text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100/60 dark:hover:bg-gray-900/90 transition-colors focus:outline-none"
           aria-expanded={isExpanded}
         >
-          <span>Hitos del Proyecto ({totalCount})</span>
-          {isExpanded ? (
-            <ChevronUp className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-          ) : (
-            <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-          )}
+          <span className="flex items-center gap-1.5">
+            <span>Hitos del Proyecto</span>
+            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-200/80 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+              {totalCount}
+            </span>
+          </span>
+          <div className="p-1 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:bg-gray-200 dark:group-hover:bg-gray-700 transition-all shadow-sm">
+            {isExpanded ? (
+              <ChevronUp className="w-4 h-4 stroke-[2.5]" />
+            ) : (
+              <ChevronDown className="w-4 h-4 stroke-[2.5]" />
+            )}
+          </div>
         </button>
 
         {isExpanded && (
