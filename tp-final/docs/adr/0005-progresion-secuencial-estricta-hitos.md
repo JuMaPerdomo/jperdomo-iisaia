@@ -9,6 +9,7 @@
 ## Contexto
 
 En el ciclo de vida del software profesional, las etapas técnicas guardan una relación de precedencia lógica estricta:
+
 - No es viable declarar que un software está en "Testing" si la etapa de "Desarrollo" no fue completada.
 - No se puede ejecutar "Pase a Producción" si la etapa de "Testing/QA" o "Diseño" no fueron superadas.
 - Si la interfaz de usuario permitiera marcar checkboxes en cualquier orden arbitrario (por ejemplo, marcar el hito 5 cuando los hitos 1, 2, 3 y 4 siguen pendientes), se generaría un estado incoherente en la medición del pipeline técnico y confusión en los dashboards ejecutivos.
@@ -35,9 +36,11 @@ Se adopta una **regla de validación de progresión secuencial estricta** en el 
 ## Consecuencias
 
 ### Positivas (Pros)
+
 - **Integridad del proceso:** Imposibilita inconsistencias lógicas en el avance de proyectos.
 - **Claridad cognitiva para el usuario:** El operador visualiza de inmediato cuál es el hito activo sobre el que debe trabajar, reduciendo errores humanos.
 - **Coherencia con el indicador de etapa:** La etapa técnica del proyecto calculada en backend (`get_current_stage`) refleja con exactitud la primera fase en curso.
 
 ### Trade-offs (Cons)
+
 - Disminuye la flexibilidad para flujos completamente anárquicos, lo cual es deliberado para garantizar disciplina metodológica en la entrega del software.

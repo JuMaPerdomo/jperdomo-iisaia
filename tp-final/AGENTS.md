@@ -16,7 +16,7 @@ El **Project Tracking Dashboard** (Dashboard de Seguimiento de Proyectos de Soft
 
 ## 2. Estructura del Repositorio y Stack Tecnológico
 
-```
+```text
 /
 ├── backend/                  # API REST en FastAPI
 │   ├── app/
@@ -50,15 +50,20 @@ El **Project Tracking Dashboard** (Dashboard de Seguimiento de Proyectos de Soft
 
 ## 3. Comandos de Configuración y Ejecución (Setup & Run Commands)
 
-### Backend
+### Backend (Configuración)
+
 Para configurar el entorno virtual, instalar dependencias y levantar el servidor de desarrollo:
+
 ```bash
 cd backend && python -m venv .venv && source .venv/Scripts/activate && pip install -r requirements.txt && uvicorn app.main:app --reload --port 8000
 ```
+
 *(En Windows PowerShell: `.venv\Scripts\Activate.ps1`)*
 
-### Frontend
+### Frontend (Configuración)
+
 Para instalar dependencias de Node y levantar el servidor de desarrollo de Vite:
+
 ```bash
 cd frontend && npm install && npm run dev
 ```
@@ -67,14 +72,18 @@ cd frontend && npm install && npm run dev
 
 ## 4. Comandos de Prueba y Validación (Test Commands)
 
-### Backend
+### Backend (Pruebas)
+
 Para ejecutar los tests automatizados con Pytest en modo detallado:
+
 ```bash
 pytest backend/tests/ -v
 ```
 
-### Frontend
+### Frontend (Validación)
+
 Para verificar compilación y build del frontend:
+
 ```bash
 npm run build
 ```
@@ -131,7 +140,8 @@ Para cumplir con las exigencias de mantenibilidad y contexto persistente (ver `c
 
 Cualquier cambio arquitectónico significativo (nuevas entidades o modelos de dominio, modificación sustancial de contratos de API REST, cambios en la estrategia de cálculo de métricas en tiempo real vs. persistencia estática, o reglas de negocio que restrinjan flujos de usuario) **DEBE ser documentado formalmente como un ADR en `docs/adr/`**.
 
-### Reglas para la creación de ADRs:
+### Reglas para la creación de ADRs
+
 1. **Nomenclatura:** Archivos correlativos `docs/adr/NNNN-nombre-descriptivo.md` (ej. `0006-nuevo-mecanismo.md`).
 2. **Estructura Requerida:** Todo ADR debe contener:
    - **Título y Metadatos:** Número correlativo, fecha y estado (`Propuesto`, `Aceptado`, `Rechazado`, `Superado`).
@@ -147,7 +157,8 @@ Cualquier cambio arquitectónico significativo (nuevas entidades o modelos de do
 
 Todo defecto o bug no trivial (que requiera diagnóstico de causa raíz no evidente, que implique efectos colaterales de renderizado/estado o que altere el comportamiento esperado del sistema) **DEBE ser documentado formalmente como un BDR en `docs/bdr/`**.
 
-### Reglas para la creación de BDRs:
+### Reglas para la creación de BDRs
+
 1. **Nomenclatura:** Archivos correlativos `docs/bdr/NNNN-nombre-descriptivo.md` (ej. `0003-fuga-memoria-websocket.md`).
 2. **Estructura Requerida:** Todo BDR debe contener:
    - **Metadatos:** ID correlativo, fecha, severidad (`Baja`, `Media`, `Alta`, `Crítica`), estado (`Resuelto`) y componentes afectados.

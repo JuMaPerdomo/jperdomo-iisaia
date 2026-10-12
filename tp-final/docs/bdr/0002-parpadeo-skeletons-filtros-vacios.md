@@ -45,6 +45,7 @@ Los *loading skeletons* de página completa representan un patrón de diseño de
    - Nace en `true` al montar la aplicación.
    - Pasa a `false` de forma definitiva una vez completado el primer fetch de datos.
 2. **Ajuste de la Condición en `App.jsx`:**
+
    ```jsx
    {initialLoading ? (
      <LoadingSkeletons />
@@ -54,6 +55,7 @@ Los *loading skeletons* de página completa representan un patrón de diseño de
      <ProjectsGrid />
    )}
    ```
+
 3. **Comportamiento Resultante:**
    - En la carga inicial de la página se visualizan los skeletons mientras se recuperan los proyectos por primera vez.
    - Durante cualquier filtrado o búsqueda posterior, `initialLoading` permanece en `false`:

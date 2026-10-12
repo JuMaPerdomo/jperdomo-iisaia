@@ -23,3 +23,4 @@ Cada registro documenta formalmente:
 4. **Decisión de Corrección Adoptada:** La solución arquitectónica o de código implementada, evitando *workarounds* frágiles.
 5. **Verificación:** Comandos de validación y pruebas ejecutadas.
 6. **Medidas Preventivas:** Reglas de desarrollo implementadas para asegurar que el problema no reaparezca.
+

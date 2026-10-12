@@ -3,6 +3,7 @@
 La aplicación completa: interfaz, servidor y datos que persisten. Desarrollada y estructurada como solución ejecutiva para el seguimiento integral de proyectos de software, control de hitos por fase del ciclo de vida técnico y monitoreo dinámico de salud y riesgos en tiempo real.
 
 El repositorio conserva la evidencia exhaustiva del proceso de ingeniería:
+
 - **Especificación técnica:** `docs/superpowers/specs/2026-10-11-dashboard-seguimiento-proyectos-design.md`
 - **Plan de implementación paso a paso:** `docs/superpowers/plans/2026-10-11-dashboard-seguimiento-proyectos-plan.md`
 - **Registros de Decisiones de Arquitectura (ADRs):** en `docs/adr/` (5 registros estructurados bajo estándar Nygard)
@@ -15,6 +16,7 @@ El repositorio conserva la evidencia exhaustiva del proceso de ingeniería:
 ## Cómo se ejecuta
 
 ### Prerrequisitos del Sistema
+
 - **Python:** 3.10 o superior (verificado con Python 3.13)
 - **Node.js:** v14.15.4 o superior / Node 18+
 - **NPM:** v6.14.10 o superior / v9+
@@ -24,31 +26,38 @@ El repositorio conserva la evidencia exhaustiva del proceso de ingeniería:
 ### 1. Backend (FastAPI + SQLAlchemy + SQLite)
 
 1. **Ingresar al directorio del backend:**
+
    ```bash
    cd backend
    ```
 
 2. **Crear y activar el entorno virtual:**
    - En Windows (PowerShell):
+
      ```powershell
      python -m venv .venv
      .venv\Scripts\Activate.ps1
      ```
+
    - En Linux / macOS / Bash:
+
      ```bash
      python3 -m venv .venv
      source .venv/bin/activate
      ```
 
 3. **Instalar dependencias:**
+
    ```bash
    pip install -r requirements.txt
    ```
 
 4. **Iniciar el servidor de desarrollo:**
+
    ```bash
    uvicorn app.main:app --reload --port 8000
    ```
+
    - API activa en: `http://localhost:8000`
    - Documentación interactiva Swagger UI: `http://localhost:8000/docs`
    - Documentación alternativa ReDoc: `http://localhost:8000/redoc`
@@ -58,19 +67,23 @@ El repositorio conserva la evidencia exhaustiva del proceso de ingeniería:
 ### 2. Frontend (Vite + React 18 + Tailwind CSS)
 
 1. **Ingresar al directorio del frontend:**
+
    ```bash
    cd frontend
    ```
 
 2. **Instalar dependencias:**
+
    ```bash
    npm install
    ```
 
 3. **Iniciar el servidor de desarrollo web:**
+
    ```bash
    npm run dev
    ```
+
    - Aplicación web accesible en: `http://localhost:5173`
 
 ---
@@ -79,16 +92,20 @@ El repositorio conserva la evidencia exhaustiva del proceso de ingeniería:
 
 - **Suite de Pruebas Automatizadas del Backend (Pytest):**
   Desde la raíz o desde `backend/`:
+
   ```bash
   backend/.venv/Scripts/pytest backend/tests/ -v
   ```
+
   *Resultado:* **31 pruebas unitarias y de integración pasando al 100%** (modelos, servicios de cálculo de salud, operaciones CRUD y endpoints de API con SQLite en memoria).
 
 - **Validación de Compilación del Frontend (Build):**
   Desde `frontend/`:
+
   ```bash
   npm run build
   ```
+
   *Resultado:* Compilación exitosa para producción en `frontend/dist/` sin errores de bundle.
 
 ---
@@ -97,7 +114,7 @@ El repositorio conserva la evidencia exhaustiva del proceso de ingeniería:
 
 El sistema está construido bajo un patrón de **Arquitectura Desacoplada (Client-Server)** en un monorepo organizado:
 
-```
+```text
 /
 ├── backend/                  # API REST en FastAPI
 │   ├── app/
@@ -128,6 +145,7 @@ El sistema está construido bajo un patrón de **Arquitectura Desacoplada (Clien
 ```
 
 ### Endpoints Principales de la API
+
 - `GET /api/projects`: Listado de proyectos con filtros opcionales de búsqueda (`search`), salud (`health`) y etapa (`stage`).
 - `POST /api/projects`: Creación de un proyecto y generación automática de sus 5 hitos iniciales.
 - `GET /api/projects/{id}`: Detalle de un proyecto específico con sus hitos asociados.
@@ -139,12 +157,14 @@ El sistema está construido bajo un patrón de **Arquitectura Desacoplada (Clien
 - `GET /api/metrics`: Métricas ejecutivas agregadas (total de proyectos, distribución de salud y desglose por etapas).
 
 ### Estructura y Relación de Datos
+
 - **`Project` (1) ➔ `Milestone` (N):**
   - Un proyecto posee identificador único, nombre, descripción, fecha de creación y fecha comprometida de paso a producción (`target_date`).
   - Cada hito contiene título, fase técnica (`PLANNING`, `DESIGN`, `DEVELOPMENT`, `TESTING`, `READY_FOR_DEPLOY`), estado de avance (`PENDING`, `IN_PROGRESS`, `COMPLETED`) y orden relativo.
   - Relación configurada con `cascade="all, delete-orphan"` a nivel ORM y clave foránea con `ondelete="CASCADE"` para garantizar integridad referencial estricta.
 
 ### Contrato entre Interfaz y Servidor
+
 - **Serialización y Validación:** Pydantic v2 valida estrictamente payloads de entrada y genera respuestas fuertemente tipadas (`from_attributes=True`), formateando fechas en ISO 8601 (`YYYY-MM-DD`).
 - **CORS Configurado:** Permite el consumo desacoplado desde el frontend de desarrollo (`http://localhost:5173`) y clientes externos.
 - **Autodocumentación OpenAPI:** El contrato de datos está 100% documentado y ejecutable desde `/docs`.

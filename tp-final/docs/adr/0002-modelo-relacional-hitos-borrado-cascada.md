@@ -10,6 +10,7 @@
 
 Inicialmente se evaluó representar el progreso de un proyecto con una columna única `stage` en la tabla `projects` (ej. un enum que transitara de `PLANNING` a `DONE`).
 Sin embargo, esta simplificación no refleja la realidad del ciclo de vida del software:
+
 - Un proyecto no avanza de fase de forma monolítica o binaria.
 - Los líderes técnicos y gerentes de proyecto requieren granularidad para registrar entregables o hitos intermedios y saber qué porcentaje real de trabajo ha sido completado.
 - Si un proyecto se elimina, no deben quedar registros huérfanos de hitos en la base de datos relacional.
@@ -40,9 +41,11 @@ Sin embargo, esta simplificación no refleja la realidad del ciclo de vida del s
 ## Consecuencias
 
 ### Positivas (Pros)
+
 - Trazabilidad y granularidad técnica real para los equipos de desarrollo.
 - Integridad referencial garantizada: imposible que existan hitos huérfanos sin proyecto padre.
 - Permite la renderización de checklists interactivos y cálculos precisos de porcentaje de avance ($0.0\%$ a $100.0\%$).
 
 ### Trade-offs (Cons)
+
 - Requiere operaciones relacionales JOIN o `selectinload` al recuperar proyectos con sus hitos, lo cual se resolvió configurando relaciones cargadas por defecto para evitar problemas de consultas $N+1$.

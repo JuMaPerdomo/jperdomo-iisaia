@@ -59,3 +59,4 @@ Se descartaron parches superficiales (como guardar artificialmente `window.scrol
 
 - **Regla de Memoización de Gráficos:** Cualquier componente que renderice canvas con librerías externas (Chart.js, D3) debe memoizar estrictamente sus opciones/datos y declarar un contenedor padre `relative` con altura fija explícita.
 - **Separación de Consultas:** Parámetros de vista local (filtros de listados) nunca deben disparar recálculos de métricas globales del sistema.
+

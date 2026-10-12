@@ -24,3 +24,4 @@ Cada registro sigue la estructura estándar propuesta por Michael Nygard:
 2. **Contexto:** El problema técnico o de negocio que enfrentamos, las restricciones y las fuerzas en conflicto.
 3. **Decisión:** La solución arquitectónica adoptada y cómo se implementa.
 4. **Consecuencias:** Qué ganamos (pros), qué complejidad o trade-off asumimos (cons) y el impacto en la mantenibilidad del sistema.
+
