@@ -19,7 +19,7 @@ import ProjectModal from './components/ProjectModal';
 export default function App() {
   const [projects, setProjects] = useState([]);
   const [metrics, setMetrics] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   // Filter & Search states
   const [searchTerm, setSearchTerm] = useState('');
@@ -75,7 +75,6 @@ export default function App() {
 
   // Fetch projects from backend according to active filters
   const fetchProjects = useCallback(async () => {
-    setLoading(true);
     try {
       const params = {};
       if (searchTerm.trim()) params.search = searchTerm.trim();
@@ -90,7 +89,7 @@ export default function App() {
         err.message || 'Error al conectar con la API del servidor. Verifique que el backend esté ejecutándose.'
       );
     } finally {
-      setLoading(false);
+      setInitialLoading(false);
     }
   }, [searchTerm, selectedHealth, selectedStage, showToast]);
 
@@ -250,7 +249,7 @@ export default function App() {
           </div>
 
           {/* Loading Skeletons */}
-          {loading && projects.length === 0 ? (
+          {initialLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3].map((n) => (
                 <div
