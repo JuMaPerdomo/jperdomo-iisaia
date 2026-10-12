@@ -15,7 +15,7 @@ import { FolderKanban, CheckCircle2, AlertTriangle, AlertCircle } from 'lucide-r
  * @param {number} [props.metrics.health_summary.delayed] - Count of delayed projects
  * @param {number} [props.metrics.health_summary.completed] - Count of completed projects
  */
-export default function MetricCards({ metrics }) {
+function MetricCards({ metrics }) {
   const total = metrics?.total_projects ?? 0;
   const onTrack = metrics?.health_summary?.on_track ?? 0;
   const atRisk = metrics?.health_summary?.at_risk ?? 0;
@@ -101,3 +101,5 @@ export default function MetricCards({ metrics }) {
     </section>
   );
 }
+
+export default React.memo(MetricCards);

@@ -60,8 +60,21 @@ export default function App() {
     setToast({ type, message });
   }, []);
 
-  // Fetch data from backend
-  const fetchData = useCallback(async () => {
+  // Fetch portfolio metrics from backend
+  const fetchMetrics = useCallback(async () => {
+    try {
+      const metricsData = await apiClient.getMetrics();
+      setMetrics(metricsData || null);
+    } catch (err) {
+      showToast(
+        'error',
+        err.message || 'Error al obtener métricas del servidor.'
+      );
+    }
+  }, [showToast]);
+
+  // Fetch projects from backend according to active filters
+  const fetchProjects = useCallback(async () => {
     setLoading(true);
     try {
       const params = {};
@@ -69,13 +82,8 @@ export default function App() {
       if (selectedHealth && selectedHealth !== 'ALL') params.health = selectedHealth;
       if (selectedStage && selectedStage !== 'ALL') params.stage = selectedStage;
 
-      const [projectsData, metricsData] = await Promise.all([
-        apiClient.getProjects(params),
-        apiClient.getMetrics(),
-      ]);
-
+      const projectsData = await apiClient.getProjects(params);
       setProjects(projectsData || []);
-      setMetrics(metricsData || null);
     } catch (err) {
       showToast(
         'error',
@@ -86,14 +94,19 @@ export default function App() {
     }
   }, [searchTerm, selectedHealth, selectedStage, showToast]);
 
-  // Load and refresh when filters change (with slight debounce)
+  // Initial load for metrics
+  useEffect(() => {
+    fetchMetrics();
+  }, [fetchMetrics]);
+
+  // Load and refresh projects when filters change (with slight debounce)
   useEffect(() => {
     const timer = setTimeout(() => {
-      fetchData();
+      fetchProjects();
     }, 200);
 
     return () => clearTimeout(timer);
-  }, [fetchData]);
+  }, [fetchProjects]);
 
   // Toast auto-dismiss after 4 seconds
   useEffect(() => {
@@ -116,7 +129,7 @@ export default function App() {
     }
     setIsModalOpen(false);
     setEditingProject(null);
-    await fetchData();
+    await Promise.all([fetchProjects(), fetchMetrics()]);
   }
 
   // Delete project handler
@@ -129,7 +142,7 @@ export default function App() {
     try {
       await apiClient.deleteProject(projectId);
       showToast('success', 'Proyecto eliminado correctamente.');
-      await fetchData();
+      await Promise.all([fetchProjects(), fetchMetrics()]);
     } catch (err) {
       showToast('error', err.message || 'Error al eliminar el proyecto.');
     }
@@ -140,8 +153,8 @@ export default function App() {
     const nextStatus = currentStatus === 'COMPLETED' ? 'PENDING' : 'COMPLETED';
     try {
       await apiClient.updateMilestone(projectId, milestoneId, { status: nextStatus });
-      // Immediately refresh data so dynamic health calculation and metrics update
-      await fetchData();
+      // Immediately refresh both projects and metrics so dynamic health and metrics update
+      await Promise.all([fetchProjects(), fetchMetrics()]);
     } catch (err) {
       showToast('error', err.message || 'Error al actualizar el estado del hito.');
     }
@@ -219,7 +232,7 @@ export default function App() {
         />
 
         {/* Projects Section */}
-        <section aria-label="Listado de proyectos" className="space-y-4">
+        <section aria-label="Listado de proyectos" className="space-y-4 min-h-[350px]">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">
               Proyectos {projects.length > 0 && `(${projects.length})`}
