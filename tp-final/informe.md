@@ -6,6 +6,7 @@ El repositorio conserva la evidencia exhaustiva del proceso de ingeniería:
 - **Especificación técnica:** `docs/superpowers/specs/2026-10-11-dashboard-seguimiento-proyectos-design.md`
 - **Plan de implementación paso a paso:** `docs/superpowers/plans/2026-10-11-dashboard-seguimiento-proyectos-plan.md`
 - **Registros de Decisiones de Arquitectura (ADRs):** en `docs/adr/` (5 registros estructurados bajo estándar Nygard)
+- **Registros de Decisiones de Bugs (BDRs):** en `docs/bdr/` (registros con RCA y prevención de regresiones)
 - **Contrato de gobernanza para agentes:** `AGENTS.md`
 - **Historial de commits atómicos:** siguiendo la convención *Conventional Commits* en la rama de desarrollo `feature/dashboard-seguimiento`.
 
@@ -206,14 +207,24 @@ Trabajar en un proyecto integral que abarca backend, frontend, base de datos y p
 
 ## Qué salió mal
 
-Durante el ciclo de desarrollo se detectaron dos desvíos principales que fueron gestionados y corregidos de forma proactiva:
+Durante el ciclo de desarrollo se detectaron cuatro desvíos principales que fueron gestionados y corregidos de forma proactiva, documentando los defectos técnicos en registros BDR formales:
 
 1. **Desvío 1: Granularidad de Hitos vs. Etapa Única de Proyecto**
    - **Qué ocurrió:** Durante el *brainstorming* preliminar se propuso inicialmente que el modelo `Project` tuviese un único campo `stage` que cambiara de forma global para representar el avance.
    - **Cómo se detectó:** Al contrastar la propuesta con los requisitos de la consigna y la necesidad de granularidad para los Tech Leads, se evidenció que un proyecto no pasa de fase de forma binaria, sino que progresa a través de múltiples tareas o hitos específicos que pueden solaparse.
-   - **Cómo se corrigió:** Se rediseñó la arquitectura de datos antes de codificar, introduciendo la entidad relacional `Milestone` (1 a N). La etapa del proyecto se convirtió en una propiedad calculada que refleja la primera fase con hitos pendientes, brindando trazabilidad precisa y soporte para checklists interactivos.
+   - **Cómo se corrigió:** Se rediseñó la arquitectura de datos antes de codificar, introduciendo la entidad relacional `Milestone` (1 a N). La etapa del proyecto se convirtió en una propiedad calculada que refleja la primera fase con hitos pendientes, brindando trazabilidad precisa y soporte para checklists interactivos ([ADR-0002](docs/adr/0002-modelo-relacional-hitos-borrado-cascada.md)).
 
 2. **Desvío 2: Incompatibilidad de Versión de Node.js en el Entorno Host**
    - **Qué ocurrió:** El entorno del host contaba con Node.js versión `14.15.4`. El andamiaje inicial propuesto por Vite 5 y plugins modernos de React requiere de forma mandatoria Node.js 18+, lo que provocaba fallos de sintaxis en `vite.config.js` (`crypto` y módulos ESM nativos).
    - **Cómo se detectó:** Al correr el comando de verificación de build del frontend en las fases tempranas de setup.
    - **Cómo se corrigió:** En lugar de bloquear la entrega o requerir modificaciones intrusivas en el sistema operativo del evaluador, se emitió un ruling de compatibilidad fijando `vite@2.9.18` y `@vitejs/plugin-react@1.3.2` sobre `React 18`. Se ajustó la configuración para utilizar sintaxis CommonJS compatible, logrando que tanto `npm run dev` como `npm run build` compilaran de forma ultra rápida, limpia y sin errores en cualquier versión de Node compatible.
+
+3. **Desvío 3: Salto de Scroll por Layout Shift durante Recreación del Canvas — [BDR-0001](docs/bdr/0001-salto-scroll-canvas-chartjs.md)**
+   - **Qué ocurrió:** Al scrollear al final de la página y filtrar o buscar, la ventana saltaba momentáneamente hacia arriba por una fracción de segundo antes de retornar.
+   - **Cómo se detectó:** Pruebas visuales interactivas en frontend reportadas por el usuario.
+   - **Cómo se corrigió:** Análisis de causa raíz detectó que `fetchData` volvía a solicitar métricas globales innecesariamente al filtrar proyectos locales; esto provocaba que `react-chartjs-2` destruyera y recreara la instancia del canvas en `StageChart.jsx`, colapsando a 0 px por un fotograma en un contenedor sin posición `relative`, forzando el *scroll clamping* del navegador. Se desacopló `fetchProjects()` de `fetchMetrics()`, se memoizaron datos y opciones con `useMemo` y `React.memo`, y se fijó contenedor `relative overflow-hidden` con altura mínima en la grilla.
+
+4. **Desvío 4: Parpadeo de Tarjetas Esqueleto al Alternar Filtros Vacíos — [BDR-0002](docs/bdr/0002-parpadeo-skeletons-filtros-vacios.md)**
+   - **Qué ocurrió:** Al pasar entre dos filtros que producían ambos 0 resultados, se mostraban fugazmente 3 tarjetas esqueleto animadas vacías antes de volver a mostrar el mensaje de estado vacío.
+   - **Cómo se detectó:** Validación de usabilidad al explorar combinaciones de filtros sin coincidencias.
+   - **Cómo se corrigió:** La condición `loading && projects.length === 0` evaluaba verdadero durante el fetch entre estados vacíos. Se reemplazó la bandera por `initialLoading`, restringiendo los skeletons exclusivamente al montaje inicial de la app y garantizando transiciones estables entre estados vacíos sin parpadeos.

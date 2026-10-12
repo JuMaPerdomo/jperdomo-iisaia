@@ -37,6 +37,7 @@ El **Project Tracking Dashboard** (Dashboard de Seguimiento de Proyectos de Soft
 │   └── vite.config.js
 ├── docs/                     # Documentación de diseño, specs, planes y arquitectura
 │   ├── adr/                  # Registros de Decisiones de Arquitectura (ADRs)
+│   ├── bdr/                  # Registros de Decisiones de Bugs (BDRs)
 │   └── superpowers/
 │       ├── specs/            # Especificaciones técnicas completas
 │       └── plans/            # Planes de trabajo paso a paso
@@ -118,6 +119,7 @@ Para cumplir con las exigencias de mantenibilidad y contexto persistente (ver `c
 1. **Lectura Previa Obligatoria:** Antes de realizar cualquier modificación, todo agente de IA debe leer:
    - Este archivo `AGENTS.md`.
    - Los Registros de Decisiones de Arquitectura en `docs/adr/`.
+   - Los Registros de Decisiones de Bugs en `docs/bdr/`.
    - Las especificaciones en `docs/superpowers/specs/` (o `specs/`).
    - El plan de implementación activo en `docs/superpowers/plans/` (o `plans/`).
 2. **Evidencia en Repositorio:** El historial de commits debe ser atómico, descriptivo y seguir la convención Conventional Commits (`feat:`, `test:`, `chore:`, `fix:`).
@@ -138,3 +140,20 @@ Cualquier cambio arquitectónico significativo (nuevas entidades o modelos de do
    - **Consecuencias:** Beneficios directos (pros) y trade-offs/costos de mantenimiento asumidos (cons).
 3. **Mantenimiento del Índice:** Actualizar la tabla del índice en `docs/adr/README.md` al agregar o modificar el estado de cualquier ADR.
 4. **Inmutabilidad:** Los ADRs aceptados son históricos; si una decisión previa cambia en el futuro, se crea un nuevo ADR que declare explícitamente haber superado (*superseded*) al anterior, preservando la trazabilidad de la evolución del sistema.
+
+---
+
+## 8. Gobernanza de Decisiones de Bugs (BDRs)
+
+Todo defecto o bug no trivial (que requiera diagnóstico de causa raíz no evidente, que implique efectos colaterales de renderizado/estado o que altere el comportamiento esperado del sistema) **DEBE ser documentado formalmente como un BDR en `docs/bdr/`**.
+
+### Reglas para la creación de BDRs:
+1. **Nomenclatura:** Archivos correlativos `docs/bdr/NNNN-nombre-descriptivo.md` (ej. `0003-fuga-memoria-websocket.md`).
+2. **Estructura Requerida:** Todo BDR debe contener:
+   - **Metadatos:** ID correlativo, fecha, severidad (`Baja`, `Media`, `Alta`, `Crítica`), estado (`Resuelto`) y componentes afectados.
+   - **Síntoma Observado:** Manifestación exacta del problema reportado o detectado.
+   - **Análisis de Causa Raíz (RCA):** Explicación técnica profunda de por qué ocurrió el fallo a bajo nivel.
+   - **Decisión de Corrección:** Solución adoptada, justificando por qué se descartaron soluciones temporales o parches superficiales.
+   - **Verificación:** Evidencia de pruebas ejecutadas (builds, tests unitarios, validaciones en navegador).
+   - **Medidas Preventivas:** Reglas de desarrollo o pruebas implementadas para evitar regresiones.
+3. **Mantenimiento del Índice:** Actualizar la tabla del índice en `docs/bdr/README.md` al incorporar un nuevo registro.
