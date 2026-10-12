@@ -126,23 +126,28 @@ export default function ProjectModal({
     >
       <div className="relative w-full max-w-lg bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden transform transition-all">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between bg-gray-50/50 dark:bg-gray-850/50">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-              {isEditing ? <Edit3 className="w-4 h-4" /> : <FolderPlus className="w-4 h-4" />}
+        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700/80 flex items-center justify-between bg-gray-50/70 dark:bg-gray-900 transition-colors">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-blue-100 dark:bg-blue-950/70 border border-blue-200/50 dark:border-blue-800 text-blue-600 dark:text-blue-400 flex items-center justify-center shadow-sm">
+              {isEditing ? <Edit3 className="w-4 h-4 stroke-[2.2]" /> : <FolderPlus className="w-4 h-4 stroke-[2.2]" />}
             </div>
-            <h2 id="modal-title" className="text-lg font-bold text-gray-900 dark:text-white">
-              {isEditing ? 'Editar Proyecto' : 'Crear Nuevo Proyecto'}
-            </h2>
+            <div>
+              <h2 id="modal-title" className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
+                {isEditing ? 'Editar Proyecto' : 'Crear Nuevo Proyecto'}
+              </h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                {isEditing ? 'Modifique los datos generales del proyecto' : 'Complete los datos para inicializar el proyecto y sus 5 hitos'}
+              </p>
+            </div>
           </div>
           <button
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/60 transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-1.5 text-gray-400 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
             aria-label="Cerrar modal"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 stroke-[2.2]" />
           </button>
         </div>
 
@@ -229,12 +234,12 @@ export default function ProjectModal({
           </div>
 
           {/* Modal Actions */}
-          <div className="pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-end gap-3">
+          <div className="pt-4 border-t border-gray-100 dark:border-gray-700/80 flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 active:bg-gray-300 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700/80 hover:bg-gray-200 dark:hover:bg-gray-700 active:bg-gray-300 dark:active:bg-gray-600 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
             >
               Cancelar
             </button>
