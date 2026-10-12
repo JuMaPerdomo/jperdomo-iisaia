@@ -5,6 +5,7 @@ La aplicación completa: interfaz, servidor y datos que persisten. Desarrollada 
 El repositorio conserva la evidencia exhaustiva del proceso de ingeniería:
 - **Especificación técnica:** `docs/superpowers/specs/2026-10-11-dashboard-seguimiento-proyectos-design.md`
 - **Plan de implementación paso a paso:** `docs/superpowers/plans/2026-10-11-dashboard-seguimiento-proyectos-plan.md`
+- **Registros de Decisiones de Arquitectura (ADRs):** en `docs/adr/` (5 registros estructurados bajo estándar Nygard)
 - **Contrato de gobernanza para agentes:** `AGENTS.md`
 - **Historial de commits atómicos:** siguiendo la convención *Conventional Commits* en la rama de desarrollo `feature/dashboard-seguimiento`.
 
@@ -153,7 +154,7 @@ El sistema está construido bajo un patrón de **Arquitectura Desacoplada (Clien
 
 Las siguientes decisiones de diseño y arquitectura fueron adoptadas y se defenderán en el Demo Day:
 
-1. **Cálculo Dinámico de Salud en Tiempo Real (Runtime Dynamic Health):**
+1. **Cálculo Dinámico de Salud en Tiempo Real (Runtime Dynamic Health) — [ADR-0001](docs/adr/0001-calculo-dinamico-de-salud.md):**
    - **Decisión:** La salud del proyecto (`ON_TRACK`, `AT_RISK`, `DELAYED`, `COMPLETED`) **nunca se almacena como una columna estática** en la base de datos.
    - **Justificación:** Almacenar el semáforo como campo estático provoca desincronización temporal inevitable (por ejemplo, un proyecto cuya fecha comprometida venció anoche seguiría figurando como `ON_TRACK` hasta que alguien lo edite o corra un cron job). Calcularlo dinámicamente en tiempo de ejecución en la capa de servicios asegura que si la fecha actual supera a `target_date` y el proyecto no está completado, pase automáticamente a `DELAYED` sin requerir tareas programadas en segundo plano ni *triggers* de base de datos.
    - **Reglas del semáforo implementadas:**
@@ -162,17 +163,21 @@ Las siguientes decisiones de diseño y arquitectura fueron adoptadas y se defend
      - `AT_RISK`: Si la fecha comprometida está a 7 días o menos y el progreso acumulado es inferior al 70%.
      - `ON_TRACK`: En cualquier otra condición donde el avance sea coherente con la ventana de tiempo.
 
-2. **Inicialización Automática de Hitos Base del Ciclo de Vida:**
+2. **Inicialización Automática de Hitos Base del Ciclo de Vida — [ADR-0003](docs/adr/0003-inicializacion-automatica-hitos-base.md):**
    - **Decisión:** Cada proyecto nuevo se inicializa de forma predeterminada con 5 hitos asociados a las fases técnicas de la ingeniería de software (`PLANNING`, `DESIGN`, `DEVELOPMENT`, `TESTING`, `READY_FOR_DEPLOY`).
    - **Justificación:** Reduce radicalmente la fricción de carga para los líderes técnicos, promoviendo de inmediato una medición estándar del pipeline sin impedir que agreguen hitos adicionales o los modifiquen según el contexto de su equipo.
 
-3. **Arquitectura Totalmente Desacoplada (FastAPI + React 18):**
+3. **Arquitectura Totalmente Desacoplada (FastAPI + React 18) — [ADR-0004](docs/adr/0004-arquitectura-desacoplada-fastapi-react.md):**
    - **Decisión:** Separación estricta entre la API REST y la aplicación cliente SPA en lugar de un monolito acoplado con plantillas del lado del servidor.
    - **Justificación:** Permite evolución independiente, optimiza la experiencia de usuario con transiciones fluidas en el navegador (reactividad instantánea en filtros y checklist de hitos) y habilita la integración futura de otros clientes (aplicaciones móviles, extensiones de IDE o bots de CI/CD).
 
-4. **Desarrollo Guiado por Pruebas (TDD) en el Backend:**
+4. **Desarrollo Guiado por Pruebas (TDD) en el Backend — [ADR-0002](docs/adr/0002-modelo-relacional-hitos-borrado-cascada.md):**
    - **Decisión:** Aplicación rigurosa del ciclo *Red-Green-Refactor* antes de implementar código productivo en el backend.
    - **Justificación:** Se construyeron 31 casos de prueba cubriendo casos borde críticos (como proyectos con 0 hitos para evitar `ZeroDivisionError`, proyectos nacidos en el pasado, borrado en cascada y filtros combinados). Esto brindó absoluta certeza y robustez antes de ensamblar la interfaz visual.
+
+5. **Progresión Secuencial Estricta de Hitos — [ADR-0005](docs/adr/0005-progresion-secuencial-estricta-hitos.md):**
+   - **Decisión:** En el frontend, un hito solo puede completarse si todos los hitos previos ya fueron completados, y solo puede desmarcarse el último hito completado.
+   - **Justificación:** Evita inconsistencias lógicas en el pipeline (como marcar "Pase a Producción" saltándose "Testing" o "Diseño") y brinda feedback visual claro con candados y tooltips descriptivos sobre qué paso técnico debe cumplirse a continuación.
 
 ---
 

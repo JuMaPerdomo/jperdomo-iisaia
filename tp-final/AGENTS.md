@@ -35,7 +35,8 @@ El **Project Tracking Dashboard** (Dashboard de Seguimiento de Proyectos de Soft
 │   │   └── App.jsx
 │   ├── package.json
 │   └── vite.config.js
-├── docs/                     # Documentación de diseño, specs y planes de implementación
+├── docs/                     # Documentación de diseño, specs, planes y arquitectura
+│   ├── adr/                  # Registros de Decisiones de Arquitectura (ADRs)
 │   └── superpowers/
 │       ├── specs/            # Especificaciones técnicas completas
 │       └── plans/            # Planes de trabajo paso a paso
@@ -116,7 +117,24 @@ Para cumplir con las exigencias de mantenibilidad y contexto persistente (ver `c
 
 1. **Lectura Previa Obligatoria:** Antes de realizar cualquier modificación, todo agente de IA debe leer:
    - Este archivo `AGENTS.md`.
+   - Los Registros de Decisiones de Arquitectura en `docs/adr/`.
    - Las especificaciones en `docs/superpowers/specs/` (o `specs/`).
    - El plan de implementación activo en `docs/superpowers/plans/` (o `plans/`).
 2. **Evidencia en Repositorio:** El historial de commits debe ser atómico, descriptivo y seguir la convención Conventional Commits (`feat:`, `test:`, `chore:`, `fix:`).
 3. **Aislamiento de Cambios:** Trabajar sobre ramas temáticas (`feature/...`) y no introducir cambios fuera del alcance definido en la tarea o brief correspondiente.
+
+---
+
+## 7. Gobernanza de Decisiones de Arquitectura (ADRs)
+
+Cualquier cambio arquitectónico significativo (nuevas entidades o modelos de dominio, modificación sustancial de contratos de API REST, cambios en la estrategia de cálculo de métricas en tiempo real vs. persistencia estática, o reglas de negocio que restrinjan flujos de usuario) **DEBE ser documentado formalmente como un ADR en `docs/adr/`**.
+
+### Reglas para la creación de ADRs:
+1. **Nomenclatura:** Archivos correlativos `docs/adr/NNNN-nombre-descriptivo.md` (ej. `0006-nuevo-mecanismo.md`).
+2. **Estructura Requerida:** Todo ADR debe contener:
+   - **Título y Metadatos:** Número correlativo, fecha y estado (`Propuesto`, `Aceptado`, `Rechazado`, `Superado`).
+   - **Contexto:** El problema a resolver, restricciones técnicas y fuerzas en tensión.
+   - **Decisión:** La solución técnica adoptada y su alcance exacto.
+   - **Consecuencias:** Beneficios directos (pros) y trade-offs/costos de mantenimiento asumidos (cons).
+3. **Mantenimiento del Índice:** Actualizar la tabla del índice en `docs/adr/README.md` al agregar o modificar el estado de cualquier ADR.
+4. **Inmutabilidad:** Los ADRs aceptados son históricos; si una decisión previa cambia en el futuro, se crea un nuevo ADR que declare explícitamente haber superado (*superseded*) al anterior, preservando la trazabilidad de la evolución del sistema.

@@ -38,7 +38,9 @@ tp-final/
 ├── frontend/                 # Aplicación Web SPA en React 18 + Vite + Tailwind CSS
 │   ├── src/                  # Componentes interactivos, gráficas y cliente API
 │   └── package.json
-├── docs/superpowers/         # Especificación técnica (specs) y planes de desarrollo (plans)
+├── docs/                     # Documentación de diseño, specs, planes y ADRs
+│   ├── adr/                  # 5 Registros de Decisiones de Arquitectura (ADRs)
+│   └── superpowers/         # Especificación técnica (specs) y planes de desarrollo (plans)
 ├── informe.md                # Informe oficial de entrega y defensa para el Demo Day
 ├── consigna.md               # Requisitos académicos originales
 └── AGENTS.md                 # Contrato operativo y gobernanza de contexto para agentes de IA
