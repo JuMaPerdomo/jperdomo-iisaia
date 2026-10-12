@@ -17,6 +17,7 @@
 El **Project Tracking Dashboard** es una solución integral y desacoplada diseñada para Tech Leads, Project Managers y Directores que requieren visibilidad ejecutiva centralizada sobre el estado de sus proyectos de software.
 
 Permite monitorear en una sola pantalla:
+
 - **Indicadores Clave (KPIs):** Total de proyectos y contadores por estado de salud (`ON TRACK`, `AT RISK`, `DELAYED`, `COMPLETED`).
 - **Distribución de Etapas:** Gráfico interactivo tipo Donut (`Chart.js`) con proyectos agrupados según su fase activa (`PLANNING`, `DESIGN`, `DEVELOPMENT`, `TESTING`, `READY_FOR_DEPLOY`).
 - **Tarjetas de Proyecto:** Semáforo de salud automático, barra de progreso calculada sobre hitos completados y fecha comprometida de entrega (*target date*).
@@ -29,7 +30,7 @@ Permite monitorear en una sola pantalla:
 
 El proyecto está diseñado bajo un modelo desacoplado cliente-servidor:
 
-```
+```text
 tp-final/
 ├── backend/                  # API REST en FastAPI (Python)
 │   ├── app/                  # Lógica del servidor, modelos ORM, schemas y servicios
@@ -52,6 +53,7 @@ tp-final/
 ## ⚡ Guía de Inicio Rápido (Quickstart)
 
 ### Prerrequisitos
+
 - **Python 3.10+** (recomendado Python 3.11 o 3.13)
 - **Node.js** (v14.15.4+ o Node 18+) y **NPM**
 
@@ -107,6 +109,7 @@ npm run dev
 ## 🧪 Pruebas y Verificación
 
 ### Backend (Pytest)
+
 Para correr la suite completa de 31 pruebas automatizadas con reporte detallado:
 
 ```bash
@@ -114,12 +117,14 @@ backend/.venv/Scripts/pytest backend/tests/ -v
 ```
 
 Las pruebas cubren:
+
 - Cálculo dinámico de salud y casos límite (proyectos con 0 hitos, fechas pasadas, entregas inminentes).
 - Modelos relacionales y borrado en cascada con SQLite en memoria.
 - Operaciones CRUD y agregaciones de métricas.
 - Endpoints HTTP REST, validación de schemas Pydantic y cabeceras CORS.
 
 ### Frontend (Build Check)
+
 Para verificar la compilación estática y empaquetado para producción:
 
 ```bash
@@ -145,4 +150,3 @@ cd frontend && npm run build
 - [Registros de Decisiones de Bugs (BDRs)](file:///c:/git/jperdomo-iisaia/tp-final/docs/bdr/README.md): 2 registros con análisis de causa raíz y medidas preventivas.
 - [Gobernanza de Agentes (AGENTS.md)](file:///c:/git/jperdomo-iisaia/tp-final/AGENTS.md): Reglas de arquitectura, testing y contexto para agentes de IA.
 - [Especificación Técnica](file:///c:/git/jperdomo-iisaia/tp-final/docs/superpowers/specs/2026-10-11-dashboard-seguimiento-proyectos-design.md): Documento de diseño formal del sistema.
-
