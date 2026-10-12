@@ -38,12 +38,12 @@ tp-final/
 ├── frontend/                 # Aplicación Web SPA en React 18 + Vite + Tailwind CSS
 │   ├── src/                  # Componentes interactivos, gráficas y cliente API
 │   └── package.json
-├── docs/                     # Documentación de diseño, specs, planes, ADRs y BDRs
+├── docs/                     # Documentación organizada del proyecto
 │   ├── adr/                  # 5 Registros de Decisiones de Arquitectura (ADRs)
 │   ├── bdr/                  # 2 Registros de Decisiones de Bugs (BDRs)
+│   ├── dev/                  # Material inicial de desarrollo (consigna.md, idea.md, estados.md)
+│   ├── informe/              # Informe oficial de entrega para el Demo Day (informe.md)
 │   └── superpowers/         # Especificación técnica (specs) y planes de desarrollo (plans)
-├── informe.md                # Informe oficial de entrega y defensa para el Demo Day
-├── consigna.md               # Requisitos académicos originales
 └── AGENTS.md                 # Contrato operativo y gobernanza de contexto para agentes de IA
 ```
 
@@ -139,8 +139,10 @@ cd frontend && npm run build
 
 ## 📄 Documentación Adicional
 
-- [Informe de Entrega y Defensa (informe.md)](file:///c:/git/jperdomo-iisaia/tp-final/informe.md): Respuestas detalladas a los 5 ejes requeridos para el Demo Day.
-- [Consigna Original (consigna.md)](file:///c:/git/jperdomo-iisaia/tp-final/consigna.md): Requisitos académicos y pauta de evaluación.
+- [Informe de Entrega y Defensa (docs/informe/informe.md)](file:///c:/git/jperdomo-iisaia/tp-final/docs/informe/informe.md): Respuestas detalladas a los 5 ejes requeridos para el Demo Day.
+- [Consigna Original y Documentos de Desarrollo (docs/dev/)](file:///c:/git/jperdomo-iisaia/tp-final/docs/dev/consigna.md): Requisitos académicos y notas iniciales de diseño.
+- [Registros de Decisiones de Arquitectura (ADRs)](file:///c:/git/jperdomo-iisaia/tp-final/docs/adr/README.md): 5 registros formales Nygard de diseño y arquitectura.
+- [Registros de Decisiones de Bugs (BDRs)](file:///c:/git/jperdomo-iisaia/tp-final/docs/bdr/README.md): 2 registros con análisis de causa raíz y medidas preventivas.
 - [Gobernanza de Agentes (AGENTS.md)](file:///c:/git/jperdomo-iisaia/tp-final/AGENTS.md): Reglas de arquitectura, testing y contexto para agentes de IA.
 - [Especificación Técnica](file:///c:/git/jperdomo-iisaia/tp-final/docs/superpowers/specs/2026-10-11-dashboard-seguimiento-proyectos-design.md): Documento de diseño formal del sistema.
 

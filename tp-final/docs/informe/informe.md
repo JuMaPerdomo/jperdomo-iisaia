@@ -6,9 +6,10 @@ El repositorio conserva la evidencia exhaustiva del proceso de ingeniería:
 
 - **Especificación técnica:** `docs/superpowers/specs/2026-10-11-dashboard-seguimiento-proyectos-design.md`
 - **Plan de implementación paso a paso:** `docs/superpowers/plans/2026-10-11-dashboard-seguimiento-proyectos-plan.md`
-- **Registros de Decisiones de Arquitectura (ADRs):** en `docs/adr/` (5 registros estructurados bajo estándar Nygard)
-- **Registros de Decisiones de Bugs (BDRs):** en `docs/bdr/` (registros con RCA y prevención de regresiones)
-- **Contrato de gobernanza para agentes:** `AGENTS.md`
+- **Registros de Decisiones de Arquitectura (ADRs):** en `../adr/` (5 registros estructurados bajo estándar Nygard)
+- **Registros de Decisiones de Bugs (BDRs):** en `../bdr/` (registros con RCA y prevención de regresiones)
+- **Material inicial de desarrollo:** en `../dev/` (`consigna.md`, `idea.md`, `estados.md`)
+- **Contrato de gobernanza para agentes:** `../../AGENTS.md`
 - **Historial de commits atómicos:** siguiendo la convención *Conventional Commits* en la rama de desarrollo `feature/dashboard-seguimiento`.
 
 ---
@@ -175,7 +176,7 @@ El sistema está construido bajo un patrón de **Arquitectura Desacoplada (Clien
 
 Las siguientes decisiones de diseño y arquitectura fueron adoptadas y se defenderán en el Demo Day:
 
-1. **Cálculo Dinámico de Salud en Tiempo Real (Runtime Dynamic Health) — [ADR-0001](docs/adr/0001-calculo-dinamico-de-salud.md):**
+1. **Cálculo Dinámico de Salud en Tiempo Real (Runtime Dynamic Health) — [ADR-0001](../adr/0001-calculo-dinamico-de-salud.md):**
    - **Decisión:** La salud del proyecto (`ON_TRACK`, `AT_RISK`, `DELAYED`, `COMPLETED`) **nunca se almacena como una columna estática** en la base de datos.
    - **Justificación:** Almacenar el semáforo como campo estático provoca desincronización temporal inevitable (por ejemplo, un proyecto cuya fecha comprometida venció anoche seguiría figurando como `ON_TRACK` hasta que alguien lo edite o corra un cron job). Calcularlo dinámicamente en tiempo de ejecución en la capa de servicios asegura que si la fecha actual supera a `target_date` y el proyecto no está completado, pase automáticamente a `DELAYED` sin requerir tareas programadas en segundo plano ni *triggers* de base de datos.
    - **Reglas del semáforo implementadas:**
@@ -184,19 +185,19 @@ Las siguientes decisiones de diseño y arquitectura fueron adoptadas y se defend
      - `AT_RISK`: Si la fecha comprometida está a 7 días o menos y el progreso acumulado es inferior al 70%.
      - `ON_TRACK`: En cualquier otra condición donde el avance sea coherente con la ventana de tiempo.
 
-2. **Inicialización Automática de Hitos Base del Ciclo de Vida — [ADR-0003](docs/adr/0003-inicializacion-automatica-hitos-base.md):**
+2. **Inicialización Automática de Hitos Base del Ciclo de Vida — [ADR-0003](../adr/0003-inicializacion-automatica-hitos-base.md):**
    - **Decisión:** Cada proyecto nuevo se inicializa de forma predeterminada con 5 hitos asociados a las fases técnicas de la ingeniería de software (`PLANNING`, `DESIGN`, `DEVELOPMENT`, `TESTING`, `READY_FOR_DEPLOY`).
    - **Justificación:** Reduce radicalmente la fricción de carga para los líderes técnicos, promoviendo de inmediato una medición estándar del pipeline sin impedir que agreguen hitos adicionales o los modifiquen según el contexto de su equipo.
 
-3. **Arquitectura Totalmente Desacoplada (FastAPI + React 18) — [ADR-0004](docs/adr/0004-arquitectura-desacoplada-fastapi-react.md):**
+3. **Arquitectura Totalmente Desacoplada (FastAPI + React 18) — [ADR-0004](../adr/0004-arquitectura-desacoplada-fastapi-react.md):**
    - **Decisión:** Separación estricta entre la API REST y la aplicación cliente SPA en lugar de un monolito acoplado con plantillas del lado del servidor.
    - **Justificación:** Permite evolución independiente, optimiza la experiencia de usuario con transiciones fluidas en el navegador (reactividad instantánea en filtros y checklist de hitos) y habilita la integración futura de otros clientes (aplicaciones móviles, extensiones de IDE o bots de CI/CD).
 
-4. **Desarrollo Guiado por Pruebas (TDD) en el Backend — [ADR-0002](docs/adr/0002-modelo-relacional-hitos-borrado-cascada.md):**
+4. **Desarrollo Guiado por Pruebas (TDD) en el Backend — [ADR-0002](../adr/0002-modelo-relacional-hitos-borrado-cascada.md):**
    - **Decisión:** Aplicación rigurosa del ciclo *Red-Green-Refactor* antes de implementar código productivo en el backend.
    - **Justificación:** Se construyeron 31 casos de prueba cubriendo casos borde críticos (como proyectos con 0 hitos para evitar `ZeroDivisionError`, proyectos nacidos en el pasado, borrado en cascada y filtros combinados). Esto brindó absoluta certeza y robustez antes de ensamblar la interfaz visual.
 
-5. **Progresión Secuencial Estricta de Hitos — [ADR-0005](docs/adr/0005-progresion-secuencial-estricta-hitos.md):**
+5. **Progresión Secuencial Estricta de Hitos — [ADR-0005](../adr/0005-progresion-secuencial-estricta-hitos.md):**
    - **Decisión:** En el frontend, un hito solo puede completarse si todos los hitos previos ya fueron completados, y solo puede desmarcarse el último hito completado.
    - **Justificación:** Evita inconsistencias lógicas en el pipeline (como marcar "Pase a Producción" saltándose "Testing" o "Diseño") y brinda feedback visual claro con candados y tooltips descriptivos sobre qué paso técnico debe cumplirse a continuación.
 
@@ -232,19 +233,19 @@ Durante el ciclo de desarrollo se detectaron cuatro desvíos principales que fue
 1. **Desvío 1: Granularidad de Hitos vs. Etapa Única de Proyecto**
    - **Qué ocurrió:** Durante el *brainstorming* preliminar se propuso inicialmente que el modelo `Project` tuviese un único campo `stage` que cambiara de forma global para representar el avance.
    - **Cómo se detectó:** Al contrastar la propuesta con los requisitos de la consigna y la necesidad de granularidad para los Tech Leads, se evidenció que un proyecto no pasa de fase de forma binaria, sino que progresa a través de múltiples tareas o hitos específicos que pueden solaparse.
-   - **Cómo se corrigió:** Se rediseñó la arquitectura de datos antes de codificar, introduciendo la entidad relacional `Milestone` (1 a N). La etapa del proyecto se convirtió en una propiedad calculada que refleja la primera fase con hitos pendientes, brindando trazabilidad precisa y soporte para checklists interactivos ([ADR-0002](docs/adr/0002-modelo-relacional-hitos-borrado-cascada.md)).
+   - **Cómo se corrigió:** Se rediseñó la arquitectura de datos antes de codificar, introduciendo la entidad relacional `Milestone` (1 a N). La etapa del proyecto se convirtió en una propiedad calculada que refleja la primera fase con hitos pendientes, brindando trazabilidad precisa y soporte para checklists interactivos ([ADR-0002](../adr/0002-modelo-relacional-hitos-borrado-cascada.md)).
 
 2. **Desvío 2: Incompatibilidad de Versión de Node.js en el Entorno Host**
    - **Qué ocurrió:** El entorno del host contaba con Node.js versión `14.15.4`. El andamiaje inicial propuesto por Vite 5 y plugins modernos de React requiere de forma mandatoria Node.js 18+, lo que provocaba fallos de sintaxis en `vite.config.js` (`crypto` y módulos ESM nativos).
    - **Cómo se detectó:** Al correr el comando de verificación de build del frontend en las fases tempranas de setup.
    - **Cómo se corrigió:** En lugar de bloquear la entrega o requerir modificaciones intrusivas en el sistema operativo del evaluador, se emitió un ruling de compatibilidad fijando `vite@2.9.18` y `@vitejs/plugin-react@1.3.2` sobre `React 18`. Se ajustó la configuración para utilizar sintaxis CommonJS compatible, logrando que tanto `npm run dev` como `npm run build` compilaran de forma ultra rápida, limpia y sin errores en cualquier versión de Node compatible.
 
-3. **Desvío 3: Salto de Scroll por Layout Shift durante Recreación del Canvas — [BDR-0001](docs/bdr/0001-salto-scroll-canvas-chartjs.md)**
+3. **Desvío 3: Salto de Scroll por Layout Shift durante Recreación del Canvas — [BDR-0001](../bdr/0001-salto-scroll-canvas-chartjs.md)**
    - **Qué ocurrió:** Al scrollear al final de la página y filtrar o buscar, la ventana saltaba momentáneamente hacia arriba por una fracción de segundo antes de retornar.
    - **Cómo se detectó:** Pruebas visuales interactivas en frontend reportadas por el usuario.
    - **Cómo se corrigió:** Análisis de causa raíz detectó que `fetchData` volvía a solicitar métricas globales innecesariamente al filtrar proyectos locales; esto provocaba que `react-chartjs-2` destruyera y recreara la instancia del canvas en `StageChart.jsx`, colapsando a 0 px por un fotograma en un contenedor sin posición `relative`, forzando el *scroll clamping* del navegador. Se desacopló `fetchProjects()` de `fetchMetrics()`, se memoizaron datos y opciones con `useMemo` y `React.memo`, y se fijó contenedor `relative overflow-hidden` con altura mínima en la grilla.
 
-4. **Desvío 4: Parpadeo de Tarjetas Esqueleto al Alternar Filtros Vacíos — [BDR-0002](docs/bdr/0002-parpadeo-skeletons-filtros-vacios.md)**
+4. **Desvío 4: Parpadeo de Tarjetas Esqueleto al Alternar Filtros Vacíos — [BDR-0002](../bdr/0002-parpadeo-skeletons-filtros-vacios.md)**
    - **Qué ocurrió:** Al pasar entre dos filtros que producían ambos 0 resultados, se mostraban fugazmente 3 tarjetas esqueleto animadas vacías antes de volver a mostrar el mensaje de estado vacío.
    - **Cómo se detectó:** Validación de usabilidad al explorar combinaciones de filtros sin coincidencias.
    - **Cómo se corrigió:** La condición `loading && projects.length === 0` evaluaba verdadero durante el fetch entre estados vacíos. Se reemplazó la bandera por `initialLoading`, restringiendo los skeletons exclusivamente al montaje inicial de la app y garantizando transiciones estables entre estados vacíos sin parpadeos.

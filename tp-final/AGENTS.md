@@ -38,10 +38,11 @@ El **Project Tracking Dashboard** (Dashboard de Seguimiento de Proyectos de Soft
 ├── docs/                     # Documentación de diseño, specs, planes y arquitectura
 │   ├── adr/                  # Registros de Decisiones de Arquitectura (ADRs)
 │   ├── bdr/                  # Registros de Decisiones de Bugs (BDRs)
+│   ├── dev/                  # Material inicial de desarrollo (consigna.md, idea.md, estados.md)
+│   ├── informe/              # Informe oficial de entrega y defensa para el Demo Day (informe.md)
 │   └── superpowers/
 │       ├── specs/            # Especificaciones técnicas completas
 │       └── plans/            # Planes de trabajo paso a paso
-├── consigna.md               # Requisitos académicos y guía de defensa
 ├── AGENTS.md                 # Guía operativa y gobernanza de agentes (este archivo)
 └── .gitignore                # Reglas de exclusión de Git
 ```
@@ -123,10 +124,12 @@ npm run build
 
 ## 6. Preservación y Gestión de Contexto entre Sesiones (Context Preservation)
 
-Para cumplir con las exigencias de mantenibilidad y contexto persistente (ver `consigna.md`):
+Para cumplir con las exigencias de mantenibilidad y contexto persistente (ver `docs/dev/consigna.md`):
 
 1. **Lectura Previa Obligatoria:** Antes de realizar cualquier modificación, todo agente de IA debe leer:
    - Este archivo `AGENTS.md`.
+   - La consigna académica original y notas de desarrollo en `docs/dev/consigna.md`.
+   - El informe consolidado de entrega en `docs/informe/informe.md`.
    - Los Registros de Decisiones de Arquitectura en `docs/adr/`.
    - Los Registros de Decisiones de Bugs en `docs/bdr/`.
    - Las especificaciones en `docs/superpowers/specs/` (o `specs/`).
