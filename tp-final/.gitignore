@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+*.db
+*.sqlite3
+.venv/
+venv/
+ENV/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+
+# Environment / IDE
+.env
+.env.local
+.vscode/
+.idea/
+
+# Superpowers / Worktrees
+.worktrees/
+worktrees/
+.superpowers/
